@@ -280,9 +280,16 @@ let texto=document.getElementById("c-"+id).value.trim()
 
 if(texto==="") return
 
+let ip = await obtenerIP()
+
 await supabaseClient
 .from("comentarios")
-.insert([{confesion_id:id,texto,autor:"Anónimo"}])
+.insert([{
+confesion_id:id,
+texto:texto,
+autor:"Anónimo",
+ip:ip
+}])
 
 document.getElementById("c-"+id).value=""
 
