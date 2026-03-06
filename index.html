@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Grupo sin guía - Confesiones</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(#2f6f3e,#5f8f4f);
+color:white;
+display:flex;
+flex-direction:column;
+align-items:center;
+}
+
+.logo{
+width:160px;
+border-radius:50%;
+margin-top:30px;
+border:5px solid white;
+}
+
+.container{
+background:white;
+color:#333;
+padding:25px;
+border-radius:15px;
+width:90%;
+max-width:600px;
+margin-top:20px;
+}
+
+textarea,input{
+width:100%;
+padding:10px;
+border-radius:8px;
+border:1px solid #ccc;
+margin-top:10px;
+}
+
+button{
+margin-top:10px;
+padding:10px;
+background:#2f6f3e;
+color:white;
+border:none;
+border-radius:8px;
+cursor:pointer;
+}
+
+.post{
+background:white;
+color:#333;
+padding:20px;
+border-radius:10px;
+margin-top:15px;
+width:90%;
+max-width:600px;
+}
+
+.like{
+cursor:pointer;
+color:#2f6f3e;
+font-weight:bold;
+margin-top:10px;
+}
+
+.comment{
+margin-top:5px;
+font-size:14px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<img src="logo.png" class="logo">
+
+<h1>Grupo sin guía</h1>
+
+<div class="container">
+
+<textarea id="texto" placeholder="Tu confesión"></textarea>
+
+<input id="autor" placeholder="Nombre (opcional)">
+
+<button id="btnPublicar">Publicar</button>
+
+</div>
+
+<div id="muro"></div>
+
+<script>
+
+const SUPABASE_URL = "https://gxnhpuhyijybpfectzre.supabase.co"
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4bmhwdWh5aWp5YnBmZWN0enJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NjQyODYsImV4cCI6MjA4ODM0MDI4Nn0.jVPR1eipK3MMJRNVoNsB-GY3_OH2JfK7h1jF-kwJvOU"
+
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+
+async function publicar(){
+
+let texto=document.getElementById("texto").value.trim()
+let autor=document.getElementById("autor").value.trim()
+
+if(texto===""){
+alert("Escribe una confesión")
+return
+}
+
+if(!autor) autor="Anónimo"
+
+const {error} = await supabaseClient
+.from("confesiones")
+.insert([{texto,autor}])
+
+if(error){
+console.log(error)
+alert("Error al publicar")
+return
+}
+
+document.getElementById("texto").value=""
+document.getElementById("autor").value=""
+
+cargar()
+
+}
+
+async function cargar(){
+
+const {data,error}=await supabaseClient
+.from("confesiones")
+.select("*")
+.order("fecha",{ascending:false})
+
+if(error){
+console.log(error)
+return
+}
+
+let muro=document.getElementById("muro")
+muro.innerHTML=""
+
+data.forEach(c=>{
+
+muro.innerHTML+=`
+<div class="post">
+
+<p>${c.texto}</p>
+
+<b>${c.autor}</b>
+
+<div class="like" onclick="like(${c.id},${c.likes || 0})">
+❤️ ${c.likes || 0}
+</div>
+
+<div id="comentarios-${c.id}"></div>
+
+<input id="c-${c.id}" placeholder="Comentar">
+
+<button onclick="comentar(${c.id})">Enviar</button>
+
+</div>
+`
+
+cargarComentarios(c.id)
+
+})
+
+}
+
+async function like(id,likes){
+
+await supabaseClient
+.from("confesiones")
+.update({likes:likes+1})
+.eq("id",id)
+
+cargar()
+
+}
+
+async function comentar(id){
+
+let texto=document.getElementById("c-"+id).value.trim()
+
+if(texto==="") return
+
+await supabaseClient
+.from("comentarios")
+.insert([{confesion_id:id,texto,autor:"Anónimo"}])
+
+document.getElementById("c-"+id).value=""
+
+cargarComentarios(id)
+
+}
+
+async function cargarComentarios(id){
+
+const {data}=await supabaseClient
+.from("comentarios")
+.select("*")
+.eq("confesion_id",id)
+
+let div=document.getElementById("comentarios-"+id)
+
+div.innerHTML=""
+
+data.forEach(c=>{
+div.innerHTML+=`<div class="comment">💬 ${c.texto}</div>`
+})
+
+}
+
+document.getElementById("btnPublicar").addEventListener("click",publicar)
+
+cargar()
+
+</script>
+
+</body>
+</html>
