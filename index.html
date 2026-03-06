@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
 
 <meta charset="UTF-8">
@@ -13,78 +14,141 @@
 
 body{
 margin:0;
-font-family:Arial;
-background:linear-gradient(#2f6f3e,#5f8f4f);
-color:white;
+font-family:'Segoe UI',sans-serif;
+background:linear-gradient(180deg,#2f6f3e,#5f8f4f);
+min-height:100vh;
 display:flex;
 flex-direction:column;
 align-items:center;
+color:white;
 }
 
 .logo{
-width:160px;
+width:120px;
 border-radius:50%;
 margin-top:30px;
 border:5px solid white;
+box-shadow:0 8px 20px rgba(0,0,0,0.3);
+transition:0.3s;
+}
+
+.logo:hover{
+transform:scale(1.05);
+}
+
+h1{
+margin-top:10px;
+font-size:34px;
+letter-spacing:1px;
 }
 
 .container{
 background:white;
 color:#333;
 padding:25px;
-border-radius:15px;
+border-radius:18px;
 width:90%;
 max-width:600px;
 margin-top:20px;
+box-shadow:0 10px 25px rgba(0,0,0,0.25);
 }
 
 textarea,input{
 width:100%;
-padding:10px;
-border-radius:8px;
-border:1px solid #ccc;
+padding:12px;
+border-radius:10px;
+border:1px solid #ddd;
 margin-top:10px;
+font-size:15px;
+outline:none;
+}
+
+textarea:focus,input:focus{
+border-color:#2f6f3e;
 }
 
 button{
 margin-top:10px;
-padding:10px;
+padding:10px 18px;
 background:#2f6f3e;
 color:white;
 border:none;
-border-radius:8px;
+border-radius:10px;
 cursor:pointer;
+font-weight:bold;
+transition:0.2s;
+}
+
+button:hover{
+background:#245730;
+}
+
+.muro{
+display:flex;
+flex-direction:column;
+align-items:center;
+width:100%;
 }
 
 .post{
 background:white;
 color:#333;
-padding:20px;
-border-radius:10px;
-margin-top:15px;
+padding:18px;
+border-radius:16px;
+margin-top:20px;
 width:90%;
-max-width:600px;
+max-width:450px;
+box-shadow:0 8px 20px rgba(0,0,0,0.2);
+transition:0.2s;
+}
+
+.post:hover{
+transform:translateY(-3px);
+}
+
+.post p{
+font-size:16px;
+margin-bottom:8px;
+}
+
+.autor{
+font-weight:bold;
+margin-bottom:5px;
 }
 
 .like{
 cursor:pointer;
-color:#2f6f3e;
+color:#e63946;
 font-weight:bold;
-margin-top:10px;
+margin-top:8px;
 }
 
 .comment{
-margin-top:5px;
+margin-top:6px;
 font-size:14px;
+background:#f5f5f5;
+padding:6px 10px;
+border-radius:8px;
+}
+
+.comment-box{
+margin-top:8px;
+display:flex;
+gap:6px;
+}
+
+.comment-box input{
+flex:1;
 }
 
 </style>
 
 </head>
 
+
 <body>
 
-<img src="cambio.jpg" class="logo">
+<img src="logo.png" class="logo">
 
 <h1>Grupo sin guía</h1>
 
@@ -98,7 +162,7 @@ font-size:14px;
 
 </div>
 
-<div id="muro"></div>
+<div class="muro" id="muro"></div>
 
 <script>
 
@@ -106,6 +170,7 @@ const SUPABASE_URL = "https://gxnhpuhyijybpfectzre.supabase.co"
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4bmhwdWh5aWp5YnBmZWN0enJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NjQyODYsImV4cCI6MjA4ODM0MDI4Nn0.jVPR1eipK3MMJRNVoNsB-GY3_OH2JfK7h1jF-kwJvOU"
 
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+
 
 async function publicar(){
 
@@ -119,7 +184,7 @@ return
 
 if(!autor) autor="Anónimo"
 
-const {error} = await supabaseClient
+const {error}=await supabaseClient
 .from("confesiones")
 .insert([{texto,autor}])
 
@@ -135,6 +200,7 @@ document.getElementById("autor").value=""
 cargar()
 
 }
+
 
 async function cargar(){
 
@@ -154,11 +220,12 @@ muro.innerHTML=""
 data.forEach(c=>{
 
 muro.innerHTML+=`
+
 <div class="post">
 
 <p>${c.texto}</p>
 
-<b>${c.autor}</b>
+<div class="autor">${c.autor}</div>
 
 <div class="like" onclick="like(${c.id},${c.likes || 0})">
 ❤️ ${c.likes || 0}
@@ -166,11 +233,13 @@ muro.innerHTML+=`
 
 <div id="comentarios-${c.id}"></div>
 
+<div class="comment-box">
 <input id="c-${c.id}" placeholder="Comentar">
-
 <button onclick="comentar(${c.id})">Enviar</button>
+</div>
 
 </div>
+
 `
 
 cargarComentarios(c.id)
@@ -178,6 +247,7 @@ cargarComentarios(c.id)
 })
 
 }
+
 
 async function like(id,likes){
 
@@ -189,6 +259,7 @@ await supabaseClient
 cargar()
 
 }
+
 
 async function comentar(id){
 
@@ -205,6 +276,7 @@ document.getElementById("c-"+id).value=""
 cargarComentarios(id)
 
 }
+
 
 async function cargarComentarios(id){
 
@@ -230,4 +302,5 @@ cargar()
 </script>
 
 </body>
+
 </html>
