@@ -172,6 +172,17 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
 
 
+async function obtenerIP(){
+try{
+const r = await fetch("https://api.ipify.org?format=json")
+const data = await r.json()
+return data.ip
+}catch{
+return "desconocida"
+}
+}
+
+
 async function publicar(){
 
 let texto=document.getElementById("texto").value.trim()
@@ -184,9 +195,11 @@ return
 
 if(!autor) autor="Anónimo"
 
+let ip = await obtenerIP()
+
 const {error}=await supabaseClient
 .from("confesiones")
-.insert([{texto,autor}])
+.insert([{texto,autor,ip}])
 
 if(error){
 console.log(error)
