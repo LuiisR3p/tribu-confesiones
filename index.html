@@ -442,11 +442,11 @@
                                 ❤️ ${c.likes || 0}
                             </div>
                         </div>
-                        <div class="comment-section" id="comentarios-${c.id}"></div>
-                        <div class="comment-box">
-                            <input id="c-${c.id}" placeholder="Escribe un comentario...">
-                            <button onclick="comentar(${c.id})">Enviar</button>
-                        </div>
+<div class="comment-section" id="comentarios-${c.id}"></div>
+<!-- COMENTARIOS BLOQUEADOS TEMPORALMENTE -->
+<div style="margin-top: 10px; font-size: 12px; color: var(--text-muted); font-style: italic; text-align: center; background: rgba(0,0,0,0.3); padding: 6px; border-radius: 6px;">
+    🔒 Los comentarios están desactivados temporalmente.
+</div>
                     ` : ''}
                 </div>
             `;
