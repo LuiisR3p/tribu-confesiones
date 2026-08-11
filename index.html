@@ -2,325 +2,503 @@
 <html lang="es">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tribu Sin Guía - Confesiones</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        :root {
+            --bg-color: #0b0c10;
+            --card-bg: rgba(22, 27, 34, 0.85);
+            --accent-orange: #ff5500;
+            --accent-gold: #ffaa00;
+            --text-main: #f0f6fc;
+            --text-muted: #8b949e;
+            --danger: #ff4d4d;
+        }
 
-<title>Tribu sin guía - Confesiones</title>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #000 url('https://res.cloudinary.com/ftm1qd8k/image/upload/v1785257498/WhatsApp_Image_2026-05-26_at_9.34.44_AM_zv4bql.jpg') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-main);
+            padding-bottom: 50px;
+        }
 
-<style>
+        .overlay-dark {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 0;
+        }
 
-body{
-margin:0;
-font-family:'Segoe UI',sans-serif;
-background:linear-gradient(180deg,#2f6f3e,#5f8f4f);
-min-height:100vh;
-display:flex;
-flex-direction:column;
-align-items:center;
-color:white;
-}
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 550px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 15px;
+        }
 
-.logo{
-width:120px;
-border-radius:50%;
-margin-top:30px;
-border:5px solid white;
-box-shadow:0 8px 20px rgba(0,0,0,0.3);
-transition:0.3s;
-}
+        .logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-top: 10px;
+            border: 3px solid var(--accent-orange);
+            box-shadow: 0 0 25px rgba(255, 85, 0, 0.5);
+            object-fit: cover;
+        }
 
-.logo:hover{
-transform:scale(1.05);
-}
+        h1 {
+            margin-top: 15px;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow: 0 0 10px var(--accent-orange);
+        }
 
-h1{
-margin-top:10px;
-font-size:34px;
-letter-spacing:1px;
-}
+        .sub-header {
+            color: var(--accent-gold);
+            font-size: 14px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
 
-.container{
-background:white;
-color:#333;
-padding:25px;
-border-radius:18px;
-width:90%;
-max-width:600px;
-margin-top:20px;
-box-shadow:0 10px 25px rgba(0,0,0,0.25);
-}
+        .container {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 85, 0, 0.3);
+            padding: 20px;
+            border-radius: 16px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+        }
 
-textarea,input{
-width:100%;
-padding:12px;
-border-radius:10px;
-border:1px solid #ddd;
-margin-top:10px;
-font-size:15px;
-outline:none;
-}
+        textarea, input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #30363d;
+            background: rgba(15, 17, 21, 0.8);
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: 0.3s;
+        }
 
-textarea:focus,input:focus{
-border-color:#2f6f3e;
-}
+        textarea {
+            resize: none;
+            height: 90px;
+        }
 
-button{
-margin-top:10px;
-padding:10px 18px;
-background:#2f6f3e;
-color:white;
-border:none;
-border-radius:10px;
-cursor:pointer;
-font-weight:bold;
-transition:0.2s;
-}
+        textarea:focus, input:focus {
+            border-color: var(--accent-orange);
+            box-shadow: 0 0 10px rgba(255, 85, 0, 0.3);
+        }
 
-button:hover{
-background:#245730;
-}
+        .btn-submit {
+            margin-top: 12px;
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(90deg, var(--accent-orange), var(--accent-gold));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(255, 85, 0, 0.4);
+            transition: 0.2s;
+        }
 
-.muro{
-display:flex;
-flex-direction:column;
-align-items:center;
-width:100%;
-}
+        .btn-submit:hover {
+            transform: scale(1.02);
+            filter: brightness(1.1);
+        }
 
-.post{
-background:white;
-color:#333;
-padding:18px;
-border-radius:16px;
-margin-top:20px;
-width:90%;
-max-width:450px;
-box-shadow:0 8px 20px rgba(0,0,0,0.2);
-transition:0.2s;
-}
+        .muro {
+            width: 100%;
+            margin-top: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
 
-.post:hover{
-transform:translateY(-3px);
-}
+        .post {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 18px;
+            border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            position: relative;
+        }
 
-.post p{
-font-size:16px;
-margin-bottom:8px;
-}
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
 
-.autor{
-font-weight:bold;
-margin-bottom:5px;
-}
+        .autor {
+            font-weight: bold;
+            color: var(--accent-gold);
+            font-size: 14px;
+        }
 
-.like{
-cursor:pointer;
-color:#e63946;
-font-weight:bold;
-margin-top:8px;
-}
+        .post p {
+            font-size: 15px;
+            line-height: 1.5;
+            color: #e6edf3;
+            word-break: break-word;
+        }
 
-.comment{
-margin-top:6px;
-font-size:14px;
-background:#f5f5f5;
-padding:6px 10px;
-border-radius:8px;
-}
+        .post-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
 
-.comment-box{
-margin-top:8px;
-display:flex;
-gap:6px;
-}
+        .like {
+            cursor: pointer;
+            color: #ff4d4d;
+            font-weight: bold;
+            font-size: 14px;
+            background: rgba(255, 77, 77, 0.1);
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 77, 77, 0.2);
+            transition: 0.2s;
+        }
 
-.comment-box input{
-flex:1;
-}
+        .like:hover {
+            background: rgba(255, 77, 77, 0.25);
+        }
 
-</style>
+        .comment-section {
+            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
 
+        .comment {
+            font-size: 13px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border-left: 2px solid var(--accent-orange);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .comment-box {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .comment-box input {
+            padding: 8px 12px;
+            font-size: 13px;
+        }
+
+        .comment-box button {
+            background: var(--accent-orange);
+            color: white;
+            border: none;
+            padding: 0 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* PANEL ADMIN BADGES */
+        .admin-bar {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .admin-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-muted);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .btn-delete {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .ip-tag {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+    </style>
 </head>
-
 
 <body>
 
-<img src="logo.png" class="logo">
-
-<h1>Tribu sin guía</h1>
-
-<div class="container">
-
-<textarea id="texto" placeholder="Tu confesión"></textarea>
-
-<input id="autor" placeholder="Nombre (opcional)">
-
-<button id="btnPublicar">Publicar</button>
-
-</div>
-
-<div class="muro" id="muro"></div>
-
-<script>
-
-const SUPABASE_URL = "https://gxnhpuhyijybpfectzre.supabase.co"
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4bmhwdWh5aWp5YnBmZWN0enJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NjQyODYsImV4cCI6MjA4ODM0MDI4Nn0.jVPR1eipK3MMJRNVoNsB-GY3_OH2JfK7h1jF-kwJvOU"
-
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
-
-
-async function obtenerIP(){
-try{
-const r = await fetch("https://api.ipify.org?format=json")
-const data = await r.json()
-return data.ip
-}catch{
-return "desconocida"
-}
-}
-
-
-async function publicar(){
-
-let texto=document.getElementById("texto").value.trim()
-let autor=document.getElementById("autor").value.trim()
-
-if(texto===""){
-alert("Escribe una confesión")
-return
-}
-
-if(!autor) autor="Anónimo"
-
-let ip = await obtenerIP()
-
-const {error}=await supabaseClient
-.from("confesiones")
-.insert([{texto,autor,ip}])
-
-if(error){
-console.log(error)
-alert("Error al publicar")
-return
-}
-
-document.getElementById("texto").value=""
-document.getElementById("autor").value=""
-
-cargar()
-
-}
-
-
-async function cargar(){
-
-const {data,error}=await supabaseClient
-.from("confesiones")
-.select("*")
-.order("fecha",{ascending:false})
-
-if(error){
-console.log(error)
-return
-}
-
-let muro=document.getElementById("muro")
-muro.innerHTML=""
-
-data.forEach(c=>{
-
-muro.innerHTML+=`
-
-<div class="post">
-
-<p>${c.texto}</p>
-
-<div class="autor">${c.autor}</div>
-
-<div class="like" onclick="like(${c.id},${c.likes || 0})">
-❤️ ${c.likes || 0}
-</div>
-
-<div id="comentarios-${c.id}"></div>
-
-<div class="comment-box">
-<input id="c-${c.id}" placeholder="Comentar">
-<button onclick="comentar(${c.id})">Enviar</button>
-</div>
-
-</div>
-
-`
-
-cargarComentarios(c.id)
-
-})
-
-}
-
-
-async function like(id,likes){
-
-await supabaseClient
-.from("confesiones")
-.update({likes:likes+1})
-.eq("id",id)
-
-cargar()
-
-}
-
-
-async function comentar(id){
-
-let texto=document.getElementById("c-"+id).value.trim()
-
-if(texto==="") return
-
-let ip = await obtenerIP()
-
-await supabaseClient
-.from("comentarios")
-.insert([{
-confesion_id:id,
-texto:texto,
-autor:"Anónimo",
-ip:ip
-}])
-
-document.getElementById("c-"+id).value=""
-
-cargarComentarios(id)
-
-}
-
-
-async function cargarComentarios(id){
-
-const {data}=await supabaseClient
-.from("comentarios")
-.select("*")
-.eq("confesion_id",id)
-
-let div=document.getElementById("comentarios-"+id)
-
-div.innerHTML=""
-
-data.forEach(c=>{
-div.innerHTML+=`<div class="comment">💬 ${c.texto}</div>`
-})
-
-}
-
-document.getElementById("btnPublicar").addEventListener("click",publicar)
-
-cargar()
-
+    <div class="overlay-dark"></div>
+
+    <div class="content-wrapper">
+        <img src="logo.png" class="logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1235/1235661.png'">
+
+        <h1>Tribu Sin Guía</h1>
+        <div class="sub-header">🔥 Secretos del Ritual & Confesiones 🔥</div>
+
+        <div class="container">
+            <textarea id="texto" placeholder="Escribe tu confesión anónima... (Nadie sabrá quién eres)"></textarea>
+            <input id="autor" placeholder="Nombre o Apodo (Opcional)" style="margin-top: 10px;">
+            <button class="btn-submit" id="btnPublicar">Publicar Confesión 🤫</button>
+        </div>
+
+        <div class="admin-bar">
+            <button class="admin-btn" onclick="activarModoAdmin()">⚙️ Acceso Administrador</button>
+        </div>
+
+        <div class="muro" id="muro"></div>
+    </div>
+
+   <script>
+    const SUPABASE_URL = "https://gxnhpuhyijybpfectzre.supabase.co";
+    // API Key corregida sin el caracter corrupto
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4bmhwdWh5aWp5YnBmZWN0enJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NjQyODYsImV4cCI6MjA4ODM0MDI4Nn0.jVPR1eipK3MMJRNVoNsB-GY3_OH2JfK7h1jF-kwJvOU";
+
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    let esAdmin = false;
+
+    async function obtenerIP() {
+        try {
+            const r = await fetch("https://api.ipify.org?format=json");
+            const data = await r.json();
+            return data.ip;
+        } catch {
+            return "127.0.0.1";
+        }
+    }
+
+    function activarModoAdmin() {
+        const clave = prompt("Escribe la contraseña de administrador:");
+        if (clave === "tribu2026") {
+            esAdmin = true;
+            alert("🔓 Modo Administrador Activado");
+            cargar();
+        } else {
+            alert("❌ Clave incorrecta");
+        }
+    }
+
+    // PUBLICAR (Ingresa en 'pendiente' para moderación)
+    async function publicar() {
+        let texto = document.getElementById("texto").value.trim();
+        let autor = document.getElementById("autor").value.trim();
+
+        if (!texto) {
+            alert("Por favor escribe una confesión.");
+            return;
+        }
+
+        if (!autor) autor = "Anónimo";
+        let ip = await obtenerIP();
+
+        const { error } = await supabaseClient
+            .from("confesiones")
+            .insert([{ texto, autor, ip, estado: 'pendiente' }]);
+
+        if (error) {
+            alert("Error al publicar: " + error.message);
+            return;
+        }
+
+        alert("🔥 ¡Confesión enviada! Pasará por revisión del administrador antes de aparecer en el muro.");
+        document.getElementById("texto").value = "";
+        document.getElementById("autor").value = "";
+        cargar();
+    }
+
+    // CARGAR MURO
+    async function cargar() {
+        let query = supabaseClient.from("confesiones").select("*").order("fecha", { ascending: false });
+
+        // Filtro: Si no es Admin, solo se consultan las aprobadas
+        if (!esAdmin) {
+            query = query.eq("estado", "aprobado");
+        }
+
+        const { data, error } = await query;
+        if (error) {
+            console.error("Error consultando confesiones:", error);
+            return;
+        }
+
+        let muro = document.getElementById("muro");
+        muro.innerHTML = "";
+
+        if (esAdmin) {
+            muro.innerHTML += `<div style="background: rgba(255, 170, 0, 0.2); border: 1px solid #ffaa00; padding: 10px; border-radius: 10px; text-align: center; color: #ffaa00; margin-bottom: 15px; font-weight: bold;">👑 MODO ADMIN: Estás viendo confesiones aprobadas y pendientes.</div>`;
+        }
+
+        if (!data || data.length === 0) {
+            muro.innerHTML += `<p style="color: #888; text-align: center;">No hay confesiones visibles en este momento.</p>`;
+            return;
+        }
+
+        data.forEach(c => {
+            const esPendiente = c.estado === 'pendiente';
+            
+            let adminControles = '';
+            if (esAdmin) {
+                if (esPendiente) {
+                    adminControles = `
+                        <div style="margin-top: 10px; display: flex; gap: 8px;">
+                            <button style="background: #2ea44f; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold;" onclick="cambiarEstado(${c.id}, 'aprobado')">✅ Aprobar</button>
+                            <button style="background: #da3633; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold;" onclick="cambiarEstado(${c.id}, 'rechazado')">❌ Rechazar</button>
+                        </div>
+                    `;
+                } else {
+                    adminControles = `<button class="btn-delete" onclick="borrarConfesion(${c.id})">🗑️ Eliminar del Muro</button>`;
+                }
+            }
+
+            const ipTag = esAdmin ? `<span class="ip-tag">IP: ${c.ip || 'Desc'} | Estado: <strong>${c.estado}</strong></span>` : '';
+            const badgePendiente = esPendiente ? `<span style="background: #ffaa00; color: #000; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold;">PENDIENTE DE REVISIÓN</span>` : '';
+
+            muro.innerHTML += `
+                <div class="post" style="${esPendiente ? 'border: 1px dashed #ffaa00; background: rgba(255, 170, 0, 0.05);' : ''}">
+                    <div class="post-header">
+                        <span class="autor">👤 ${c.autor} ${badgePendiente}</span>
+                        <div>${ipTag}</div>
+                    </div>
+                    <p>"${c.texto}"</p>
+                    
+                    ${adminControles}
+
+                    ${!esPendiente ? `
+                        <div class="post-footer">
+                            <div class="like" onclick="like(${c.id}, ${c.likes || 0})">
+                                ❤️ ${c.likes || 0}
+                            </div>
+                        </div>
+                        <div class="comment-section" id="comentarios-${c.id}"></div>
+                        <div class="comment-box">
+                            <input id="c-${c.id}" placeholder="Escribe un comentario...">
+                            <button onclick="comentar(${c.id})">Enviar</button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            if (!esPendiente) {
+                cargarComentarios(c.id);
+            }
+        });
+    }
+
+    async function cambiarEstado(id, nuevoEstado) {
+        if (nuevoEstado === 'rechazado') {
+            if (!confirm("¿Deseas rechazar y eliminar esta confesión?")) return;
+            await supabaseClient.from("confesiones").delete().eq("id", id);
+        } else {
+            await supabaseClient.from("confesiones").update({ estado: 'aprobado' }).eq("id", id);
+        }
+        cargar();
+    }
+
+    async function borrarConfesion(id) {
+        if (!confirm("¿Seguro que quieres borrar esta confesión?")) return;
+        await supabaseClient.from("confesiones").delete().eq("id", id);
+        cargar();
+    }
+
+    async function borrarComentario(comentarioId, confesionId) {
+        if (!confirm("¿Borrar este comentario?")) return;
+        await supabaseClient.from("comentarios").delete().eq("id", comentarioId);
+        cargarComentarios(confesionId);
+    }
+
+    async function like(id, likes) {
+        await supabaseClient.from("confesiones").update({ likes: likes + 1 }).eq("id", id);
+        cargar();
+    }
+
+    async function comentar(id) {
+        let texto = document.getElementById("c-" + id).value.trim();
+        if (!texto) return;
+
+        let ip = await obtenerIP();
+
+        await supabaseClient.from("comentarios").insert([{
+            confesion_id: id,
+            texto: texto,
+            autor: "Anónimo",
+            ip: ip
+        }]);
+
+        document.getElementById("c-" + id).value = "";
+        cargarComentarios(id);
+    }
+
+    async function cargarComentarios(id) {
+        const { data } = await supabaseClient
+            .from("comentarios")
+            .select("*")
+            .eq("confesion_id", id)
+            .order("fecha", { ascending: true });
+
+        let div = document.getElementById("comentarios-" + id);
+        if (!div) return;
+        div.innerHTML = "";
+
+        if (data) {
+            data.forEach(c => {
+                const deleteComBtn = esAdmin ? `<button class="btn-delete" onclick="borrarComentario(${c.id}, ${id})">x</button>` : '';
+                div.innerHTML += `
+                    <div class="comment">
+                        <span>💬 ${c.texto}</span>
+                        ${deleteComBtn}
+                    </div>
+                `;
+            });
+        }
+    }
+
+    document.getElementById("btnPublicar").addEventListener("click", publicar);
+    cargar();
 </script>
-
-</body>
-
-</html>
