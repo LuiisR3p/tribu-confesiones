@@ -277,11 +277,35 @@
 
     <div class="overlay-dark"></div>
 
+<!-- BOTÓN DE RETORNO AL EVENTO -->
+<div style="position: relative; z-index: 10; width: 100%; max-width: 550px; margin-top: 15px; text-align: center;">
+    <a href="https://halloween-tribu-2026.vercel.app/" style="
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 85, 0, 0.15);
+        border: 1px solid #ff5500;
+        color: #ffaa00;
+        padding: 8px 16px;
+        border-radius: 20px;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 0.85rem;
+        backdrop-filter: blur(5px);
+        box-shadow: 0 0 15px rgba(255, 85, 0, 0.3);
+        transition: 0.3s;
+    ">
+        🎃 Volver a la Fiesta de Halloween 2026 🎟️
+    </a>
+</div>
+
     <div class="content-wrapper">
         <img src="logo.png" class="logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1235/1235661.png'">
 
         <h1>Tribu Sin Guía</h1>
         <div class="sub-header">🔥 Secretos del Ritual & Confesiones 🔥</div>
+
+        
 
         <div class="container">
             <textarea id="texto" placeholder="Escribe tu confesión anónima... (Nadie sabrá quién eres)"></textarea>
@@ -295,6 +319,8 @@
 
         <div class="muro" id="muro"></div>
     </div>
+
+    
 
    <script>
     const SUPABASE_URL = "https://gxnhpuhyijybpfectzre.supabase.co";
