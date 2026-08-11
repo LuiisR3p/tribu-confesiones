@@ -322,13 +322,13 @@
 
     
 
-   <script>
+<script>
     const SUPABASE_URL = "https://gxnhpuhyijybpfectzre.supabase.co";
-    // API Key corregida sin el caracter corrupto
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4bmhwdWh5aWp5YnBmZWN0enJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NjQyODYsImV4cCI6MjA4ODM0MDI4Nn0.jVPR1eipK3MMJRNVoNsB-GY3_OH2JfK7h1jF-kwJvOU";
 
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     let esAdmin = false;
+    let comentariosPermitidos = false;
 
     async function obtenerIP() {
         try {
@@ -340,9 +340,20 @@
         }
     }
 
+    // Verificar si los comentarios están activos en la BD
+    async function verificarEstadoComentarios() {
+        const { data } = await supabaseClient
+            .from("configuracion")
+            .select("valor")
+            .eq("clave", "comentarios_activos")
+            .single();
+
+        if (data) comentariosPermitidos = data.valor;
+    }
+
     function activarModoAdmin() {
         const clave = prompt("Escribe la contraseña de administrador:");
-        if (clave === "tribu3312*") {
+        if (clave === "tribu2026") {
             esAdmin = true;
             alert("🔓 Modo Administrador Activado");
             cargar();
@@ -351,7 +362,20 @@
         }
     }
 
-    // PUBLICAR (Ingresa en 'pendiente' para moderación)
+    // Alternar comentarios ON/OFF (Solo Admin)
+    async function toggleComentarios() {
+        comentariosPermitidos = !comentariosPermitidos;
+        
+        await supabaseClient
+            .from("configuracion")
+            .update({ valor: comentariosPermitidos })
+            .eq("clave", "comentarios_activos");
+
+        alert(comentariosPermitidos ? "💬 Comentarios ACTIVADOS" : "🔒 Comentarios DESACTIVADOS");
+        cargar();
+    }
+
+    // PUBLICAR CONFESIÓN
     async function publicar() {
         let texto = document.getElementById("texto").value.trim();
         let autor = document.getElementById("autor").value.trim();
@@ -373,7 +397,7 @@
             return;
         }
 
-        alert("🔥 ¡Confesión enviada! Pasará por revisión del administrador antes de aparecer en el muro.");
+        alert("🔥 ¡Confesión enviada! Pasará por revisión antes de aparecer en el muro.");
         document.getElementById("texto").value = "";
         document.getElementById("autor").value = "";
         cargar();
@@ -381,24 +405,33 @@
 
     // CARGAR MURO
     async function cargar() {
+        await verificarEstadoComentarios();
+
         let query = supabaseClient.from("confesiones").select("*").order("fecha", { ascending: false });
 
-        // Filtro: Si no es Admin, solo se consultan las aprobadas
         if (!esAdmin) {
             query = query.eq("estado", "aprobado");
         }
 
         const { data, error } = await query;
-        if (error) {
-            console.error("Error consultando confesiones:", error);
-            return;
-        }
+        if (error) return;
 
         let muro = document.getElementById("muro");
         muro.innerHTML = "";
 
+        // Panel Admin Banner
         if (esAdmin) {
-            muro.innerHTML += `<div style="background: rgba(255, 170, 0, 0.2); border: 1px solid #ffaa00; padding: 10px; border-radius: 10px; text-align: center; color: #ffaa00; margin-bottom: 15px; font-weight: bold;">👑 MODO ADMIN: Estás viendo confesiones aprobadas y pendientes.</div>`;
+            const estadoTexto = comentariosPermitidos ? "🟢 Comentarios ACTIVOS" : "🔴 Comentarios BLOQUEADOS";
+            const btnColor = comentariosPermitidos ? "#da3633" : "#2ea44f";
+
+            muro.innerHTML += `
+                <div style="background: rgba(255, 170, 0, 0.15); border: 1px solid #ffaa00; padding: 12px; border-radius: 10px; text-align: center; color: #ffaa00; margin-bottom: 15px;">
+                    <div style="font-weight: bold; margin-bottom: 8px;">👑 MODO ADMIN | ${estadoTexto}</div>
+                    <button style="background: ${btnColor}; color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px;" onclick="toggleComentarios()">
+                        ${comentariosPermitidos ? '🔒 Apagar Comentarios' : '💬 Encender Comentarios'}
+                    </button>
+                </div>
+            `;
         }
 
         if (!data || data.length === 0) {
@@ -419,12 +452,33 @@
                         </div>
                     `;
                 } else {
-                    adminControles = `<button class="btn-delete" onclick="borrarConfesion(${c.id})">🗑️ Eliminar del Muro</button>`;
+                    adminControles = `<button class="btn-delete" onclick="borrarConfesion(${c.id})">🗑️ Eliminar</button>`;
                 }
             }
 
             const ipTag = esAdmin ? `<span class="ip-tag">IP: ${c.ip || 'Desc'} | Estado: <strong>${c.estado}</strong></span>` : '';
-            const badgePendiente = esPendiente ? `<span style="background: #ffaa00; color: #000; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold;">PENDIENTE DE REVISIÓN</span>` : '';
+            const badgePendiente = esPendiente ? `<span style="background: #ffaa00; color: #000; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold;">PENDIENTE</span>` : '';
+
+            // Renderizado de sección de comentarios (según switch)
+            let renderComentarios = '';
+            if (!esPendiente) {
+                if (comentariosPermitidos) {
+                    renderComentarios = `
+                        <div class="comment-section" id="comentarios-${c.id}"></div>
+                        <div class="comment-box">
+                            <input id="c-${c.id}" placeholder="Escribe un comentario...">
+                            <button onclick="comentar(${c.id})">Enviar</button>
+                        </div>
+                    `;
+                } else {
+                    renderComentarios = `
+                        <div class="comment-section" id="comentarios-${c.id}"></div>
+                        <div style="margin-top: 10px; font-size: 11px; color: #777; font-style: italic; text-align: center; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 6px;">
+                            🔒 Comentarios desactivados por el administrador
+                        </div>
+                    `;
+                }
+            }
 
             muro.innerHTML += `
                 <div class="post" style="${esPendiente ? 'border: 1px dashed #ffaa00; background: rgba(255, 170, 0, 0.05);' : ''}">
@@ -442,11 +496,7 @@
                                 ❤️ ${c.likes || 0}
                             </div>
                         </div>
-<div class="comment-section" id="comentarios-${c.id}"></div>
-<!-- COMENTARIOS BLOQUEADOS TEMPORALMENTE -->
-<div style="margin-top: 10px; font-size: 12px; color: var(--text-muted); font-style: italic; text-align: center; background: rgba(0,0,0,0.3); padding: 6px; border-radius: 6px;">
-    🔒 Los comentarios están desactivados temporalmente.
-</div>
+                        ${renderComentarios}
                     ` : ''}
                 </div>
             `;
@@ -459,7 +509,7 @@
 
     async function cambiarEstado(id, nuevoEstado) {
         if (nuevoEstado === 'rechazado') {
-            if (!confirm("¿Deseas rechazar y eliminar esta confesión?")) return;
+            if (!confirm("¿Deseas rechazar esta confesión?")) return;
             await supabaseClient.from("confesiones").delete().eq("id", id);
         } else {
             await supabaseClient.from("confesiones").update({ estado: 'aprobado' }).eq("id", id);
@@ -485,6 +535,11 @@
     }
 
     async function comentar(id) {
+        if (!comentariosPermitidos) {
+            alert("🔒 Los comentarios están desactivados.");
+            return;
+        }
+
         let texto = document.getElementById("c-" + id).value.trim();
         if (!texto) return;
 
