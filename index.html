@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tribu Sin Guía - Confesiones</title>
+    <title>Tribu Sin Guía - Confesiones y PQR</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -13,9 +13,11 @@
             --card-bg: rgba(22, 27, 34, 0.85);
             --accent-orange: #ff5500;
             --accent-gold: #ffaa00;
+            --accent-blue: #0088ff;
             --text-main: #f0f6fc;
             --text-muted: #8b949e;
             --danger: #ff4d4d;
+            --success: #2ea44f;
         }
 
         * {
@@ -73,6 +75,7 @@
             text-transform: uppercase;
             color: #fff;
             text-shadow: 0 0 10px var(--accent-orange);
+            text-align: center;
         }
 
         .sub-header {
@@ -80,6 +83,7 @@
             font-size: 14px;
             margin-bottom: 20px;
             font-weight: 600;
+            text-align: center;
         }
 
         .container {
@@ -92,7 +96,7 @@
             backdrop-filter: blur(10px);
         }
 
-        textarea, input {
+        textarea, input, select {
             width: 100%;
             padding: 12px;
             border-radius: 10px;
@@ -102,6 +106,7 @@
             font-size: 14px;
             outline: none;
             transition: 0.3s;
+            margin-bottom: 10px;
         }
 
         textarea {
@@ -109,13 +114,12 @@
             height: 90px;
         }
 
-        textarea:focus, input:focus {
+        textarea:focus, input:focus, select:focus {
             border-color: var(--accent-orange);
             box-shadow: 0 0 10px rgba(255, 85, 0, 0.3);
         }
 
         .btn-submit {
-            margin-top: 12px;
             width: 100%;
             padding: 12px;
             background: linear-gradient(90deg, var(--accent-orange), var(--accent-gold));
@@ -134,6 +138,24 @@
         .btn-submit:hover {
             transform: scale(1.02);
             filter: brightness(1.1);
+        }
+        
+        .btn-pqr {
+            width: 100%;
+            padding: 10px;
+            margin-top: 15px;
+            background: transparent;
+            color: var(--accent-blue);
+            border: 1px solid var(--accent-blue);
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+        
+        .btn-pqr:hover {
+            background: rgba(0, 136, 255, 0.1);
         }
 
         .muro {
@@ -225,6 +247,7 @@
         .comment-box input {
             padding: 8px 12px;
             font-size: 13px;
+            margin-bottom: 0;
         }
 
         .comment-box button {
@@ -237,11 +260,13 @@
             font-weight: bold;
         }
 
-        /* PANEL ADMIN BADGES */
         .admin-bar {
             margin-top: 20px;
             display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
             gap: 10px;
+            width: 100%;
         }
 
         .admin-btn {
@@ -258,17 +283,68 @@
             background: var(--danger);
             color: white;
             border: none;
-            padding: 2px 8px;
+            padding: 4px 8px;
             border-radius: 4px;
-            font-size: 10px;
+            font-size: 11px;
             cursor: pointer;
-            margin-left: 10px;
+        }
+        
+        .btn-action {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
         }
 
         .ip-tag {
             font-size: 10px;
             color: var(--text-muted);
             font-family: monospace;
+        }
+        
+        /* Modal PQR */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--accent-blue);
+            padding: 25px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 10px 30px rgba(0,136,255,0.2);
+        }
+        
+        .modal-content h2 {
+            color: var(--accent-blue);
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 20px;
+        }
+        
+        .btn-close-modal {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background: transparent;
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -277,27 +353,27 @@
 
     <div class="overlay-dark"></div>
 
-<!-- BOTÓN DE RETORNO AL EVENTO -->
-<div style="position: relative; z-index: 10; width: 100%; max-width: 550px; margin-top: 15px; text-align: center;">
-    <a href="https://halloween-tribu-2026.vercel.app/" style="
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: rgba(255, 85, 0, 0.15);
-        border: 1px solid #ff5500;
-        color: #ffaa00;
-        padding: 8px 16px;
-        border-radius: 20px;
-        text-decoration: none;
-        font-weight: bold;
-        font-size: 0.85rem;
-        backdrop-filter: blur(5px);
-        box-shadow: 0 0 15px rgba(255, 85, 0, 0.3);
-        transition: 0.3s;
-    ">
-        🎃 Volver a la Fiesta de Halloween 2026 🎟️
-    </a>
-</div>
+    <!-- BOTÓN DE RETORNO AL EVENTO -->
+    <div style="position: relative; z-index: 10; width: 100%; max-width: 550px; margin-top: 15px; text-align: center;">
+        <a href="https://halloween-tribu-2026.vercel.app/" style="
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 85, 0, 0.15);
+            border: 1px solid #ff5500;
+            color: #ffaa00;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.85rem;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 0 15px rgba(255, 85, 0, 0.3);
+            transition: 0.3s;
+        ">
+            🎃 Volver a la Fiesta de Halloween 2026 🎟️
+        </a>
+    </div>
 
     <div class="content-wrapper">
         <img src="logo.png" class="logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1235/1235661.png'">
@@ -305,22 +381,43 @@
         <h1>Tribu Sin Guía</h1>
         <div class="sub-header">🔥 Secretos del Ritual & Confesiones 🔥</div>
 
-        
-
         <div class="container">
             <textarea id="texto" placeholder="Escribe tu confesión anónima... (Nadie sabrá quién eres)"></textarea>
-            <input id="autor" placeholder="Nombre o Apodo (Opcional)" style="margin-top: 10px;">
+            <input id="autor" placeholder="Nombre o Apodo (Opcional)">
             <button class="btn-submit" id="btnPublicar">Publicar Confesión 🤫</button>
+            <button class="btn-pqr" onclick="abrirModalPQR()">📩 Enviar Petición, Queja o Reclamo (PQR)</button>
         </div>
 
-        <div class="admin-bar">
+        <div class="admin-bar" id="adminBar">
             <button class="admin-btn" onclick="activarModoAdmin()">⚙️ Acceso Administrador</button>
         </div>
 
         <div class="muro" id="muro"></div>
     </div>
 
-    
+    <!-- MODAL PQR -->
+    <div class="modal-overlay" id="pqrModal">
+        <div class="modal-content">
+            <h2>Buzón de PQR</h2>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px; text-align: center;">
+                Tus comentarios nos ayudan a mejorar. Este mensaje es privado.
+            </p>
+            
+            <select id="pqrTipo">
+                <option value="Petición">Petición (Sugerencia o Solicitud)</option>
+                <option value="Queja">Queja (Inconformidad con el servicio)</option>
+                <option value="Reclamo">Reclamo (Problema directo a resolver)</option>
+            </select>
+            
+            <input id="pqrNombre" placeholder="Tu Nombre o Apodo (Opcional)">
+            <input id="pqrContacto" placeholder="Email o Teléfono (Opcional, si deseas respuesta)">
+            
+            <textarea id="pqrMensaje" placeholder="Detalla aquí tu situación..." style="height: 100px;"></textarea>
+            
+            <button class="btn-submit" style="background: linear-gradient(90deg, #0055ff, #0088ff); box-shadow: 0 4px 15px rgba(0, 136, 255, 0.4);" onclick="enviarPQR()">Enviar PQR 🚀</button>
+            <button class="btn-close-modal" onclick="cerrarModalPQR()">Cancelar</button>
+        </div>
+    </div>
 
 <script>
     const SUPABASE_URL = "https://gxnhpuhyijybpfectzre.supabase.co";
@@ -329,6 +426,7 @@
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     let esAdmin = false;
     let comentariosPermitidos = false;
+    let vistaActiva = 'confesiones'; // 'confesiones' o 'pqrs'
 
     async function obtenerIP() {
         try {
@@ -340,32 +438,61 @@
         }
     }
 
-// Verificar estado con manejo de errores silencioso
-async function verificarEstadoComentarios() {
-    try {
-        const { data, error } = await supabaseClient
-            .from("configuracion")
-            .select("valor")
-            .eq("clave", "comentarios_activos")
-            .maybeSingle();
+    // Verificar estado con manejo de errores silencioso
+    async function verificarEstadoComentarios() {
+        try {
+            const { data, error } = await supabaseClient
+                .from("configuracion")
+                .select("valor")
+                .eq("clave", "comentarios_activos")
+                .maybeSingle();
 
-        if (data && !error) {
-            comentariosPermitidos = data.valor;
+            if (data && !error) {
+                comentariosPermitidos = data.valor;
+            }
+        } catch (e) {
+            console.warn("Tabla configuracion no detectada todavía:", e);
         }
-    } catch (e) {
-        console.warn("Tabla configuracion no detectada todavía:", e);
     }
-}
 
     function activarModoAdmin() {
+        if(esAdmin) {
+            esAdmin = false;
+            vistaActiva = 'confesiones';
+            alert("🔒 Sesión de administrador cerrada");
+            renderBotonesAdmin();
+            cargar();
+            return;
+        }
+        
         const clave = prompt("Escribe la contraseña de administrador:");
         if (clave === "tribu3312*") {
             esAdmin = true;
             alert("🔓 Modo Administrador Activado");
+            renderBotonesAdmin();
             cargar();
         } else {
             alert("❌ Clave incorrecta");
         }
+    }
+    
+    function renderBotonesAdmin() {
+        const adminBar = document.getElementById("adminBar");
+        if(esAdmin) {
+            const txtVista = vistaActiva === 'confesiones' ? '📁 Ver Bandeja PQR' : '👻 Ver Confesiones';
+            adminBar.innerHTML = `
+                <button class="admin-btn" style="background: var(--danger); color: white;" onclick="activarModoAdmin()">Cerrar Sesión</button>
+                <button class="admin-btn" style="background: var(--accent-blue); color: white;" onclick="alternarVista()">${txtVista}</button>
+            `;
+        } else {
+            adminBar.innerHTML = `<button class="admin-btn" onclick="activarModoAdmin()">⚙️ Acceso Administrador</button>`;
+        }
+    }
+    
+    function alternarVista() {
+        vistaActiva = vistaActiva === 'confesiones' ? 'pqrs' : 'confesiones';
+        renderBotonesAdmin();
+        cargar();
     }
 
     // Alternar comentarios ON/OFF (Solo Admin)
@@ -408,11 +535,58 @@ async function verificarEstadoComentarios() {
         document.getElementById("autor").value = "";
         cargar();
     }
+    
+    // --- LÓGICA PQR ---
+    function abrirModalPQR() {
+        document.getElementById("pqrModal").style.display = "flex";
+    }
+    
+    function cerrarModalPQR() {
+        document.getElementById("pqrModal").style.display = "none";
+    }
+    
+    async function enviarPQR() {
+        const tipo = document.getElementById("pqrTipo").value;
+        const nombre = document.getElementById("pqrNombre").value.trim() || "Anónimo";
+        const contacto = document.getElementById("pqrContacto").value.trim();
+        const mensaje = document.getElementById("pqrMensaje").value.trim();
+        
+        if (!mensaje) {
+            alert("Por favor, describe tu situación en el mensaje.");
+            return;
+        }
+        
+        let ip = await obtenerIP();
+        
+        const { error } = await supabaseClient
+            .from("pqrs")
+            .insert([{ tipo, nombre, contacto, mensaje, ip, estado: 'pendiente' }]);
+            
+        if (error) {
+            alert("Error al enviar PQR: " + error.message);
+            return;
+        }
+        
+        alert("✅ Tu " + tipo + " ha sido enviada exitosamente. El equipo la revisará pronto.");
+        
+        document.getElementById("pqrNombre").value = "";
+        document.getElementById("pqrContacto").value = "";
+        document.getElementById("pqrMensaje").value = "";
+        cerrarModalPQR();
+    }
 
-    // CARGAR MURO
+    // CARGAR MURO O PQRS
     async function cargar() {
         await verificarEstadoComentarios();
+        let muro = document.getElementById("muro");
+        muro.innerHTML = "";
+        
+        if (esAdmin && vistaActiva === 'pqrs') {
+            await cargarVistaPQRs(muro);
+            return;
+        }
 
+        // Carga de Confesiones
         let query = supabaseClient.from("confesiones").select("*").order("fecha", { ascending: false });
 
         if (!esAdmin) {
@@ -421,9 +595,6 @@ async function verificarEstadoComentarios() {
 
         const { data, error } = await query;
         if (error) return;
-
-        let muro = document.getElementById("muro");
-        muro.innerHTML = "";
 
         // Panel Admin Banner
         if (esAdmin) {
@@ -453,8 +624,8 @@ async function verificarEstadoComentarios() {
                 if (esPendiente) {
                     adminControles = `
                         <div style="margin-top: 10px; display: flex; gap: 8px;">
-                            <button style="background: #2ea44f; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold;" onclick="cambiarEstado(${c.id}, 'aprobado')">✅ Aprobar</button>
-                            <button style="background: #da3633; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold;" onclick="cambiarEstado(${c.id}, 'rechazado')">❌ Rechazar</button>
+                            <button class="btn-action" onclick="cambiarEstado(${c.id}, 'aprobado')">✅ Aprobar</button>
+                            <button class="btn-delete" style="padding:6px 12px;" onclick="cambiarEstado(${c.id}, 'rechazado')">❌ Rechazar</button>
                         </div>
                     `;
                 } else {
@@ -480,7 +651,7 @@ async function verificarEstadoComentarios() {
                     renderComentarios = `
                         <div class="comment-section" id="comentarios-${c.id}"></div>
                         <div style="margin-top: 10px; font-size: 11px; color: #777; font-style: italic; text-align: center; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 6px;">
-                            🔒 Comentarios desactivados por el administrador
+                            🔒 Comentarios desactivados
                         </div>
                     `;
                 }
@@ -512,6 +683,49 @@ async function verificarEstadoComentarios() {
             }
         });
     }
+    
+    async function cargarVistaPQRs(muro) {
+        muro.innerHTML = `
+            <div style="background: rgba(0, 136, 255, 0.15); border: 1px solid #0088ff; padding: 12px; border-radius: 10px; text-align: center; color: #0088ff; margin-bottom: 15px;">
+                <div style="font-weight: bold;">📩 BANDEJA DE PQRs (SOLO ADMIN)</div>
+            </div>
+        `;
+        
+        const { data, error } = await supabaseClient.from("pqrs").select("*").order("fecha", { ascending: false });
+        if (error) return;
+        
+        if (!data || data.length === 0) {
+            muro.innerHTML += `<p style="color: #888; text-align: center;">No hay PQRs en este momento.</p>`;
+            return;
+        }
+        
+        data.forEach(p => {
+            const badgeColor = p.tipo === 'Reclamo' ? '#ff4d4d' : (p.tipo === 'Queja' ? '#ffaa00' : '#0088ff');
+            const estadoResuelto = p.estado === 'resuelto';
+            
+            muro.innerHTML += `
+                <div class="post" style="border-left: 4px solid ${badgeColor}; ${estadoResuelto ? 'opacity: 0.7;' : ''}">
+                    <div class="post-header">
+                        <span class="autor">👤 ${p.nombre}</span>
+                        <span style="background:${badgeColor}; color:white; font-size:10px; padding:3px 8px; border-radius:12px;">${p.tipo}</span>
+                    </div>
+                    ${p.contacto ? `<div style="font-size:12px; color:#888; margin-bottom:8px;">📧 Contacto: ${p.contacto}</div>` : ''}
+                    
+                    <p style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px;">
+                        ${p.mensaje}
+                    </p>
+                    
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px;">
+                        <span class="ip-tag">Estado: <strong>${p.estado.toUpperCase()}</strong></span>
+                        <div style="display:flex; gap:8px;">
+                            ${!estadoResuelto ? `<button class="btn-action" onclick="resolverPQR(${p.id})">✅ Marcar Resuelto</button>` : ''}
+                            <button class="btn-delete" onclick="borrarPQR(${p.id})">🗑️ Eliminar</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    }
 
     async function cambiarEstado(id, nuevoEstado) {
         if (nuevoEstado === 'rechazado') {
@@ -526,6 +740,17 @@ async function verificarEstadoComentarios() {
     async function borrarConfesion(id) {
         if (!confirm("¿Seguro que quieres borrar esta confesión?")) return;
         await supabaseClient.from("confesiones").delete().eq("id", id);
+        cargar();
+    }
+    
+    async function resolverPQR(id) {
+        await supabaseClient.from("pqrs").update({ estado: 'resuelto' }).eq("id", id);
+        cargar();
+    }
+    
+    async function borrarPQR(id) {
+        if (!confirm("¿Seguro que quieres eliminar este PQR definitivamente?")) return;
+        await supabaseClient.from("pqrs").delete().eq("id", id);
         cargar();
     }
 
@@ -575,7 +800,7 @@ async function verificarEstadoComentarios() {
 
         if (data) {
             data.forEach(c => {
-                const deleteComBtn = esAdmin ? `<button class="btn-delete" onclick="borrarComentario(${c.id}, ${id})">x</button>` : '';
+                const deleteComBtn = esAdmin ? `<button class="btn-delete" style="padding:2px 6px;" onclick="borrarComentario(${c.id}, ${id})">x</button>` : '';
                 div.innerHTML += `
                     <div class="comment">
                         <span>💬 ${c.texto}</span>
@@ -589,3 +814,5 @@ async function verificarEstadoComentarios() {
     document.getElementById("btnPublicar").addEventListener("click", publicar);
     cargar();
 </script>
+</body>
+</html>
