@@ -1,818 +1,337 @@
 <!DOCTYPE html>
-<html lang="es">
-
+<html lang="es" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tribu Sin Guía - Confesiones y PQR</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#012e29">
+<title>Tribu Sin Guía · Confesiones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--cream:#f6ebd4;--ink:#012e29;--rust:#a54d17;--pine:#1b4f4b;--serif:'Playfair Display',Georgia,serif;--sans:'Jost','Tw Cen MT',system-ui,sans-serif}
+[data-theme=dark]{--bg:#012e29;--bg2:#01221f;--card:#0a3b36;--line:rgba(246,235,212,.12);--text:#f6ebd4;--muted:#9fb5ad;--accent:#d9783a;--btn:#a54d17;--btn-t:#f6ebd4;--field:#012420}
+[data-theme=light]{--bg:#f6ebd4;--bg2:#efe1c3;--card:#fffaf0;--line:rgba(1,46,41,.14);--text:#012e29;--muted:#5d716b;--accent:#a54d17;--btn:#012e29;--btn-t:#f6ebd4;--field:#fff}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.55;transition:background .4s,color .4s;
+ background-image:radial-gradient(900px 500px at 50% -10%,rgba(165,77,23,.22),transparent 70%),radial-gradient(600px 400px at 100% 100%,rgba(27,79,75,.5),transparent 70%);background-attachment:fixed;
+ padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+.wrap{max-width:620px;margin:0 auto;padding:16px 16px 80px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+.pill{display:inline-flex;align-items:center;gap:8px;font:500 13px var(--sans);color:var(--text);text-decoration:none;border:1px solid var(--line);background:var(--card);padding:8px 14px;border-radius:999px;cursor:pointer;transition:.2s}
+.pill:hover{border-color:var(--accent);transform:translateY(-1px)}
+.hero{text-align:center;padding:26px 0 30px}
+.badge{width:118px;height:118px;margin:0 auto 18px;border-radius:50%;background:var(--cream);display:grid;place-items:center;box-shadow:0 0 0 4px var(--rust),0 18px 40px rgba(0,0,0,.35);overflow:hidden}
+.badge img,.badge svg{width:78%;height:78%;object-fit:contain}
+h1{font:900 clamp(34px,9vw,52px)/.95 var(--serif);letter-spacing:.5px;text-transform:uppercase;color:var(--accent)}
+h1 span{display:block;color:var(--text)}
+.tag{margin-top:14px;font:italic 500 17px var(--serif);color:var(--muted)}
+.tag b{color:var(--accent);font-style:normal}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:0 20px 50px rgba(0,0,0,.18)}
+.card h2{font:800 22px var(--serif);margin-bottom:4px}
+.card .hint{font-size:14px;color:var(--muted);margin-bottom:16px}
+textarea,input,select{width:100%;font:400 16px var(--sans);color:var(--text);background:var(--field);border:1px solid var(--line);border-radius:14px;padding:13px 14px;outline:none;transition:.2s;margin-bottom:10px}
+textarea{resize:none;height:120px}
+textarea:focus,input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent)}
+::placeholder{color:var(--muted);opacity:.8}
+.count{text-align:right;font-size:12px;color:var(--muted);margin:-4px 2px 10px}
+.btn{width:100%;border:0;cursor:pointer;font:600 16px var(--sans);letter-spacing:.4px;padding:14px;border-radius:14px;background:var(--btn);color:var(--btn-t);transition:.2s}
+[data-theme=dark] .btn{box-shadow:0 8px 22px rgba(165,77,23,.4)}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.08)}
+.btn:disabled{opacity:.6;cursor:wait}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line);margin-top:10px}
+.btn.ghost:hover{border-color:var(--accent)}
+.sec{display:flex;align-items:center;gap:12px;margin:38px 0 16px;font:800 24px var(--serif)}
+.sec::after{content:"";flex:1;height:1px;background:var(--line)}
+.muro{display:flex;flex-direction:column;gap:16px}
+.post{position:relative;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px 20px 16px;animation:up .5s both}
+.post::before{content:"“";position:absolute;top:-4px;left:14px;font:900 64px/1 var(--serif);color:var(--accent);opacity:.9}
+.post.pend{border-style:dashed;border-color:var(--accent)}
+@keyframes up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.post p{font:500 17px/1.6 var(--serif);padding-top:16px;word-break:break-word;white-space:pre-wrap}
+.meta{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);gap:8px;flex-wrap:wrap}
+.who{font-weight:600;color:var(--accent)}
+.like{cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--text);font:500 14px var(--sans);padding:6px 14px;border-radius:999px;transition:.2s}
+.like:hover,.like.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 18%,transparent)}
+.coms{margin-top:12px;display:flex;flex-direction:column;gap:6px}
+.com{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:14px;background:var(--bg2);border-left:3px solid var(--accent);padding:8px 12px;border-radius:10px}
+.cbox{display:flex;gap:8px;margin-top:10px}
+.cbox input{margin:0;padding:10px 12px;font-size:14px}
+.cbox button{border:0;border-radius:12px;padding:0 16px;background:var(--btn);color:var(--btn-t);font:600 14px var(--sans);cursor:pointer}
+.off{margin-top:10px;font-size:12px;color:var(--muted);text-align:center;font-style:italic}
+.empty{text-align:center;color:var(--muted);padding:30px 10px;font:italic 17px var(--serif)}
+.tiny{border:0;cursor:pointer;font:600 12px var(--sans);padding:5px 10px;border-radius:8px;color:#fff;background:#2b8a57}
+.tiny.red{background:#c0392b}
+.adm{margin-top:22px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.adm .pill{font-size:12px;padding:6px 12px;opacity:.75}
+.banner{background:color-mix(in srgb,var(--accent) 16%,transparent);border:1px solid var(--accent);border-radius:14px;padding:12px;text-align:center;font-weight:600;font-size:14px}
+.banner button{margin-left:8px}
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,10,9,.8);backdrop-filter:blur(6px);z-index:50}
+.modal.open{display:flex}
+.modal .card{max-width:460px;width:100%;max-height:92vh;overflow:auto}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,30px);opacity:0;background:var(--cream);color:var(--ink);padding:12px 20px;border-radius:999px;font-weight:600;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.4);transition:.35s;z-index:99;max-width:92vw;text-align:center;pointer-events:none}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
-    <style>
-        :root {
-            --bg-color: #0b0c10;
-            --card-bg: rgba(22, 27, 34, 0.85);
-            --accent-orange: #ff5500;
-            --accent-gold: #ffaa00;
-            --accent-blue: #0088ff;
-            --text-main: #f0f6fc;
-            --text-muted: #8b949e;
-            --danger: #ff4d4d;
-            --success: #2ea44f;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: #000 url('https://res.cloudinary.com/ftm1qd8k/image/upload/v1785257498/WhatsApp_Image_2026-05-26_at_9.34.44_AM_zv4bql.jpg') no-repeat center center fixed;
-            background-size: cover;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: var(--text-main);
-            padding-bottom: 50px;
-        }
-
-        .overlay-dark {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
-            z-index: 0;
-        }
-
-        .content-wrapper {
-            position: relative;
-            z-index: 1;
-            width: 100%;
-            max-width: 550px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px 15px;
-        }
-
-        .logo {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            margin-top: 10px;
-            border: 3px solid var(--accent-orange);
-            box-shadow: 0 0 25px rgba(255, 85, 0, 0.5);
-            object-fit: cover;
-        }
-
-        h1 {
-            margin-top: 15px;
-            font-size: 28px;
-            font-weight: 800;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: #fff;
-            text-shadow: 0 0 10px var(--accent-orange);
-            text-align: center;
-        }
-
-        .sub-header {
-            color: var(--accent-gold);
-            font-size: 14px;
-            margin-bottom: 20px;
-            font-weight: 600;
-            text-align: center;
-        }
-
-        .container {
-            background: var(--card-bg);
-            border: 1px solid rgba(255, 85, 0, 0.3);
-            padding: 20px;
-            border-radius: 16px;
-            width: 100%;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            backdrop-filter: blur(10px);
-        }
-
-        textarea, input, select {
-            width: 100%;
-            padding: 12px;
-            border-radius: 10px;
-            border: 1px solid #30363d;
-            background: rgba(15, 17, 21, 0.8);
-            color: #fff;
-            font-size: 14px;
-            outline: none;
-            transition: 0.3s;
-            margin-bottom: 10px;
-        }
-
-        textarea {
-            resize: none;
-            height: 90px;
-        }
-
-        textarea:focus, input:focus, select:focus {
-            border-color: var(--accent-orange);
-            box-shadow: 0 0 10px rgba(255, 85, 0, 0.3);
-        }
-
-        .btn-submit {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(90deg, var(--accent-orange), var(--accent-gold));
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 4px 15px rgba(255, 85, 0, 0.4);
-            transition: 0.2s;
-        }
-
-        .btn-submit:hover {
-            transform: scale(1.02);
-            filter: brightness(1.1);
-        }
-        
-        .btn-pqr {
-            width: 100%;
-            padding: 10px;
-            margin-top: 15px;
-            background: transparent;
-            color: var(--accent-blue);
-            border: 1px solid var(--accent-blue);
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 14px;
-            transition: 0.2s;
-        }
-        
-        .btn-pqr:hover {
-            background: rgba(0, 136, 255, 0.1);
-        }
-
-        .muro {
-            width: 100%;
-            margin-top: 25px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .post {
-            background: var(--card-bg);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 18px;
-            border-radius: 14px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-            position: relative;
-        }
-
-        .post-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .autor {
-            font-weight: bold;
-            color: var(--accent-gold);
-            font-size: 14px;
-        }
-
-        .post p {
-            font-size: 15px;
-            line-height: 1.5;
-            color: #e6edf3;
-            word-break: break-word;
-        }
-
-        .post-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 12px;
-            padding-top: 10px;
-            border-top: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .like {
-            cursor: pointer;
-            color: #ff4d4d;
-            font-weight: bold;
-            font-size: 14px;
-            background: rgba(255, 77, 77, 0.1);
-            padding: 5px 12px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 77, 77, 0.2);
-            transition: 0.2s;
-        }
-
-        .like:hover {
-            background: rgba(255, 77, 77, 0.25);
-        }
-
-        .comment-section {
-            margin-top: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .comment {
-            font-size: 13px;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 8px 12px;
-            border-radius: 8px;
-            border-left: 2px solid var(--accent-orange);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .comment-box {
-            margin-top: 10px;
-            display: flex;
-            gap: 8px;
-        }
-
-        .comment-box input {
-            padding: 8px 12px;
-            font-size: 13px;
-            margin-bottom: 0;
-        }
-
-        .comment-box button {
-            background: var(--accent-orange);
-            color: white;
-            border: none;
-            padding: 0 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .admin-bar {
-            margin-top: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-        }
-
-        .admin-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: var(--text-muted);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-
-        .btn-delete {
-            background: var(--danger);
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            cursor: pointer;
-        }
-        
-        .btn-action {
-            background: var(--success);
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            cursor: pointer;
-        }
-
-        .ip-tag {
-            font-size: 10px;
-            color: var(--text-muted);
-            font-family: monospace;
-        }
-        
-        /* Modal PQR */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 100;
-            justify-content: center;
-            align-items: center;
-            padding: 15px;
-            backdrop-filter: blur(5px);
-        }
-        
-        .modal-content {
-            background: var(--card-bg);
-            border: 1px solid var(--accent-blue);
-            padding: 25px;
-            border-radius: 16px;
-            width: 100%;
-            max-width: 450px;
-            box-shadow: 0 10px 30px rgba(0,136,255,0.2);
-        }
-        
-        .modal-content h2 {
-            color: var(--accent-blue);
-            margin-bottom: 15px;
-            text-align: center;
-            font-size: 20px;
-        }
-        
-        .btn-close-modal {
-            width: 100%;
-            padding: 10px;
-            margin-top: 10px;
-            background: transparent;
-            border: 1px solid var(--danger);
-            color: var(--danger);
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-    </style>
+/* ===== ANIMACIONES ===== */
+#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(380px circle at var(--mx,50%) var(--my,30%),color-mix(in srgb,var(--accent) 18%,transparent),transparent 70%)}
+.badge{position:relative;animation:float 5s ease-in-out infinite;transition:transform .15s}
+.badge::before,.badge::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--rust);animation:ring 2.8s ease-out infinite}
+.badge::after{animation-delay:1.4s}
+@keyframes float{50%{translate:0 -10px}}
+@keyframes ring{0%{transform:scale(1);opacity:.9}100%{transform:scale(1.7);opacity:0}}
+h1 .l{display:inline-block;opacity:0;transform:translateY(40px) rotate(8deg) scale(.6);animation:pop .7s cubic-bezier(.2,1.6,.4,1) forwards;animation-delay:calc(var(--i)*55ms + .2s)}
+@keyframes pop{to{opacity:1;transform:none}}
+h1{animation:glow 3.5s ease-in-out infinite 1.5s}
+@keyframes glow{50%{text-shadow:0 0 28px color-mix(in srgb,var(--accent) 70%,transparent)}}
+.tag{animation:fade 1s 1.2s both}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}}
+.trail{position:relative;height:46px;margin:22px 0 0;overflow:hidden;border-bottom:2px dashed var(--line)}
+.hk{position:absolute;bottom:-2px;left:0;width:40px;color:var(--text);animation:walk 14s linear infinite}
+.hk svg{width:100%;animation:bob .5s ease-in-out infinite alternate}
+@keyframes walk{from{left:-50px}to{left:100%}}
+@keyframes bob{to{transform:translateY(-4px) rotate(3deg)}}
+.band{margin:26px -40px 26px;transform:rotate(-2deg);background:var(--rust);color:var(--cream);overflow:hidden;white-space:nowrap;padding:9px 0;font:900 15px var(--serif);letter-spacing:3px;text-transform:uppercase;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.band div{display:inline-block;animation:slide 22s linear infinite}
+.band:nth-of-type(2){transform:rotate(1.5deg);background:var(--pine);margin-top:-14px}
+.band:nth-of-type(2) div{animation-direction:reverse}
+@keyframes slide{to{transform:translateX(-50%)}}
+.soc{display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap}
+.soc a{display:inline-flex;align-items:center;gap:10px;padding:11px 18px;border-radius:999px;text-decoration:none;font:600 15px var(--sans);color:var(--cream);background:var(--pine);border:1px solid var(--line);position:relative;overflow:hidden;transition:.3s;animation:fade .8s 1.5s both}
+.soc a:nth-child(2){animation-delay:1.7s}
+.soc a::before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);transform:translateX(-120%);transition:.7s}
+.soc a:hover{transform:translateY(-4px) scale(1.06) rotate(-1.5deg);background:var(--rust);box-shadow:0 12px 28px rgba(165,77,23,.5)}
+.soc a:hover::before{transform:translateX(120%)}
+.soc svg{width:22px;height:22px;fill:currentColor;animation:wig 3s ease-in-out infinite}
+@keyframes wig{0%,90%,100%{transform:none}93%{transform:rotate(-14deg) scale(1.2)}96%{transform:rotate(14deg) scale(1.2)}}
+.btn{position:relative;overflow:hidden}
+.btn:not(.ghost)::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(110deg,transparent,rgba(255,255,255,.35),transparent);animation:shine 3.2s infinite}
+@keyframes shine{to{left:130%}}
+.btn:active{transform:scale(.96)}
+.card{transition:transform .25s,box-shadow .25s}
+.post{opacity:0;transform:translateY(30px) scale(.97);transition:opacity .7s,transform .7s cubic-bezier(.2,.9,.3,1.2),box-shadow .3s,border-color .3s;animation:none}
+.post.in{opacity:1;transform:none}
+.post.in:hover{transform:translateY(-4px) rotate(-.4deg);border-color:var(--accent);box-shadow:0 18px 40px rgba(0,0,0,.3)}
+.like.pop{animation:heart .5s}
+@keyframes heart{30%{transform:scale(1.5) rotate(-8deg)}60%{transform:scale(.9)}}
+.sec{overflow:hidden}
+.sec::after{transform-origin:left;animation:grow 1.2s .6s both}
+@keyframes grow{from{transform:scaleX(0)}}
+footer{text-align:center;margin-top:50px;color:var(--muted);font:italic 15px var(--serif)}
+footer .soc{margin-top:14px}
+footer a{animation:none!important}
+</style>
 </head>
-
 <body>
+<canvas id="fx"></canvas>
+<div class="wrap">
+  <div class="top">
+    <a class="pill" href="https://halloween-tribu-2026.vercel.app/">🎃 Fiesta Halloween 2026</a>
+    <button class="pill" id="themeBtn" aria-label="Cambiar tema">☀️ Claro</button>
+  </div>
 
-    <div class="overlay-dark"></div>
-
-    <!-- BOTÓN DE RETORNO AL EVENTO -->
-    <div style="position: relative; z-index: 10; width: 100%; max-width: 550px; margin-top: 15px; text-align: center;">
-        <a href="https://halloween-tribu-2026.vercel.app/" style="
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255, 85, 0, 0.15);
-            border: 1px solid #ff5500;
-            color: #ffaa00;
-            padding: 8px 16px;
-            border-radius: 20px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 0.85rem;
-            backdrop-filter: blur(5px);
-            box-shadow: 0 0 15px rgba(255, 85, 0, 0.3);
-            transition: 0.3s;
-        ">
-            🎃 Volver a la Fiesta de Halloween 2026 🎟️
-        </a>
+  <header class="hero">
+    <div class="badge" id="badge">
+      <img src="logo.png" alt="Tribu Sin Guía" onerror="this.outerHTML=document.getElementById('hiker').innerHTML">
     </div>
+    <h1>Tribu <span>Sin Guía</span></h1>
+    <p class="tag">Lo que callas aquí se queda. <b>Confesiones</b> de la comunidad.</p>
+    <div class="soc"><a href="https://www.instagram.com/tribusinguia" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.3" cy="6.7" r="1.1" fill="currentColor" stroke="none"/></svg> @tribusinguia</a><a href="https://www.tiktok.com/@tribusinguia" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M16.6 2h-3.2v13.2a2.9 2.9 0 1 1-2-2.760V9.200a6.100 6.100 0 1 0 5.200 6V8.700a7.300 7.300 0 0 0 4.200 1.300V6.800a4.200 4.200 0 0 1-4.200-4.800z"/></svg> @tribusinguia</a></div>
+    <div class="trail"><div class="hk"><svg viewBox="0 0 100 100"><g fill="currentColor"><circle cx="52" cy="22" r="7"/><path d="M40 30h16l6 18-4 8 10 20h-9L50 58l-4 14-8 8h-6l8-12 2-22-6-4z"/><rect x="31" y="28" width="10" height="20" rx="4"/></g><path d="M66 36l10 56" stroke="#a54d17" stroke-width="3" stroke-linecap="round"/></svg></div></div>
+  </header>
+  <div class="band"><div>Confesiones ✦ Secretos ✦ Sin filtro ✦ Anónimo ✦ Tribu ✦ Confesiones ✦ Secretos ✦ Sin filtro ✦ Anónimo ✦ Tribu ✦ Confesiones ✦ Secretos ✦ Sin filtro ✦ Anónimo ✦ Tribu ✦ Confesiones ✦ Secretos ✦ Sin filtro ✦ Anónimo ✦ Tribu ✦ Confesiones ✦ Secretos ✦ Sin filtro ✦ Anónimo ✦ Tribu ✦ Confesiones ✦ Secretos ✦ Sin filtro ✦ Anónimo ✦ Tribu ✦ Confesiones ✦ Secretos ✦ Sin filtro ✦ Anónimo ✦ Tribu ✦ Confesiones ✦ Secretos ✦ Sin filtro ✦ Anónimo ✦ Tribu ✦ </div></div>
 
-    <div class="content-wrapper">
-        <img src="logo.png" class="logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1235/1235661.png'">
+  <section class="card">
+    <h2>Suelta tu confesión</h2>
+    <p class="hint">Es anónima. Pasa por revisión antes de aparecer en el muro.</p>
+    <textarea id="texto" maxlength="600" placeholder="Escribe aquí lo que nunca le has contado a nadie…"></textarea>
+    <div class="count"><span id="cnt">0</span>/600</div>
+    <input id="autor" maxlength="40" placeholder="Apodo (opcional)">
+    <button class="btn" id="btnPublicar">Publicar confesión 🤫</button>
+    <button class="btn ghost" onclick="abrirPQR()">📩 Buzón de PQR</button>
+  </section>
 
-        <h1>Tribu Sin Guía</h1>
-        <div class="sub-header">🔥 Secretos del Ritual & Confesiones 🔥</div>
+  <div class="adm" id="adminBar"></div>
 
-        <div class="container">
-            <textarea id="texto" placeholder="Escribe tu confesión anónima... (Nadie sabrá quién eres)"></textarea>
-            <input id="autor" placeholder="Nombre o Apodo (Opcional)">
-            <button class="btn-submit" id="btnPublicar">Publicar Confesión 🤫</button>
-            <button class="btn-pqr" onclick="abrirModalPQR()">📩 Enviar Petición, Queja o Reclamo (PQR)</button>
-        </div>
+  <h2 class="sec" id="secTitulo">El muro</h2>
+  <div class="muro" id="muro"></div>
+  <footer>Síguenos y no te pierdas los próximos planes 🏔️<div class="soc"><a href="https://www.instagram.com/tribusinguia" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.3" cy="6.7" r="1.1" fill="currentColor" stroke="none"/></svg> @tribusinguia</a><a href="https://www.tiktok.com/@tribusinguia" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M16.6 2h-3.2v13.2a2.9 2.9 0 1 1-2-2.760V9.200a6.100 6.100 0 1 0 5.200 6V8.700a7.300 7.300 0 0 0 4.200 1.300V6.800a4.200 4.200 0 0 1-4.200-4.800z"/></svg> @tribusinguia</a></div></footer>
+</div>
 
-        <div class="admin-bar" id="adminBar">
-            <button class="admin-btn" onclick="activarModoAdmin()">⚙️ Acceso Administrador</button>
-        </div>
+<div class="modal" id="pqrModal" onclick="if(event.target===this)cerrarPQR()">
+  <div class="card">
+    <h2>Buzón de PQR</h2>
+    <p class="hint">Tu mensaje es privado y solo lo ve el equipo.</p>
+    <select id="pqrTipo"><option>Petición</option><option>Queja</option><option>Reclamo</option></select>
+    <input id="pqrNombre" placeholder="Nombre o apodo (opcional)">
+    <input id="pqrContacto" placeholder="Email o teléfono (opcional, si quieres respuesta)">
+    <textarea id="pqrMensaje" placeholder="Cuéntanos qué pasó…"></textarea>
+    <button class="btn" onclick="enviarPQR()">Enviar PQR 🚀</button>
+    <button class="btn ghost" onclick="cerrarPQR()">Cancelar</button>
+  </div>
+</div>
+<div id="toast" role="status"></div>
 
-        <div class="muro" id="muro"></div>
-    </div>
-
-    <!-- MODAL PQR -->
-    <div class="modal-overlay" id="pqrModal">
-        <div class="modal-content">
-            <h2>Buzón de PQR</h2>
-            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px; text-align: center;">
-                Tus comentarios nos ayudan a mejorar. Este mensaje es privado.
-            </p>
-            
-            <select id="pqrTipo">
-                <option value="Petición">Petición (Sugerencia o Solicitud)</option>
-                <option value="Queja">Queja (Inconformidad con el servicio)</option>
-                <option value="Reclamo">Reclamo (Problema directo a resolver)</option>
-            </select>
-            
-            <input id="pqrNombre" placeholder="Tu Nombre o Apodo (Opcional)">
-            <input id="pqrContacto" placeholder="Email o Teléfono (Opcional, si deseas respuesta)">
-            
-            <textarea id="pqrMensaje" placeholder="Detalla aquí tu situación..." style="height: 100px;"></textarea>
-            
-            <button class="btn-submit" style="background: linear-gradient(90deg, #0055ff, #0088ff); box-shadow: 0 4px 15px rgba(0, 136, 255, 0.4);" onclick="enviarPQR()">Enviar PQR 🚀</button>
-            <button class="btn-close-modal" onclick="cerrarModalPQR()">Cancelar</button>
-        </div>
-    </div>
+<template id="hiker"><svg viewBox="0 0 100 100" fill="none"><g fill="#012e29"><circle cx="52" cy="22" r="7"/><path d="M40 30h16l6 18-4 8 10 20h-9L50 58l-4 14-8 8h-6l8-12 2-22-6-4z"/><rect x="31" y="28" width="10" height="20" rx="4"/><path d="M20 84c10-4 40-4 60 0-12 5-48 5-60 0z"/></g><path d="M66 36l10 48" stroke="#a54d17" stroke-width="2.5" stroke-linecap="round"/></svg></template>
 
 <script>
-    const SUPABASE_URL = "https://gxnhpuhyijybpfectzre.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4bmhwdWh5aWp5YnBmZWN0enJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NjQyODYsImV4cCI6MjA4ODM0MDI4Nn0.jVPR1eipK3MMJRNVoNsB-GY3_OH2JfK7h1jF-kwJvOU";
+const SUPABASE_URL="https://gxnhpuhyijybpfectzre.supabase.co";
+const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4bmhwdWh5aWp5YnBmZWN0enJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NjQyODYsImV4cCI6MjA4ODM0MDI4Nn0.jVPR1eipK3MMJRNVoNsB-GY3_OH2JfK7h1jF-kwJvOU";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+let esAdmin=false,comentariosOn=false,vista='confesiones';
 
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    let esAdmin = false;
-    let comentariosPermitidos = false;
-    let vistaActiva = 'confesiones'; // 'confesiones' o 'pqrs'
+/* tema: abre en oscuro por defecto */
+const root=document.documentElement;
+function setTema(t){root.dataset.theme=t;$('themeBtn').textContent=t==='dark'?'☀️ Claro':'🌙 Noche';
+  document.querySelector('meta[name=theme-color]').content=t==='dark'?'#012e29':'#f6ebd4';
+  try{localStorage.setItem('tsg-tema',t)}catch(e){}}
+let saved='dark';try{saved=localStorage.getItem('tsg-tema')||'dark'}catch(e){}
+setTema(saved);
+$('themeBtn').onclick=()=>setTema(root.dataset.theme==='dark'?'light':'dark');
 
-    async function obtenerIP() {
-        try {
-            const r = await fetch("https://api.ipify.org?format=json");
-            const data = await r.json();
-            return data.ip;
-        } catch {
-            return "127.0.0.1";
-        }
-    }
+/* utilidades */
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),3200)}
+const liked=()=>{try{return JSON.parse(localStorage.getItem('tsg-likes')||'[]')}catch(e){return[]}};
+const saveLiked=a=>{try{localStorage.setItem('tsg-likes',JSON.stringify(a))}catch(e){}};
+async function obtenerIP(){try{return(await(await fetch("https://api.ipify.org?format=json")).json()).ip}catch{return"127.0.0.1"}}
+$('texto').addEventListener('input',e=>$('cnt').textContent=e.target.value.length);
 
-    // Verificar estado con manejo de errores silencioso
-    async function verificarEstadoComentarios() {
-        try {
-            const { data, error } = await supabaseClient
-                .from("configuracion")
-                .select("valor")
-                .eq("clave", "comentarios_activos")
-                .maybeSingle();
+async function verificarComentarios(){
+  try{const{data,error}=await db.from("configuracion").select("valor").eq("clave","comentarios_activos").maybeSingle();
+  if(data&&!error)comentariosOn=data.valor}catch(e){}}
 
-            if (data && !error) {
-                comentariosPermitidos = data.valor;
-            }
-        } catch (e) {
-            console.warn("Tabla configuracion no detectada todavía:", e);
-        }
-    }
+/* admin */
+function activarAdmin(){
+  if(esAdmin){esAdmin=false;vista='confesiones';toast("🔒 Sesión cerrada");renderAdmin();cargar();return}
+  const k=prompt("Contraseña de administrador:");
+  if(k==="tribu3312*"){esAdmin=true;toast("🔓 Modo administrador");renderAdmin();cargar()}else if(k!==null)toast("❌ Clave incorrecta")}
+function renderAdmin(){
+  $('adminBar').innerHTML=esAdmin
+   ?`<button class="pill" onclick="activarAdmin()">Cerrar sesión</button><button class="pill" onclick="alternarVista()">${vista==='confesiones'?'📁 Bandeja PQR':'👻 Confesiones'}</button>`
+   :`<button class="pill" onclick="activarAdmin()">⚙️ Administrador</button>`}
+function alternarVista(){vista=vista==='confesiones'?'pqrs':'confesiones';renderAdmin();cargar()}
+async function toggleComentarios(){
+  comentariosOn=!comentariosOn;
+  await db.from("configuracion").update({valor:comentariosOn}).eq("clave","comentarios_activos");
+  toast(comentariosOn?"💬 Comentarios activados":"🔒 Comentarios desactivados");cargar()}
 
-    function activarModoAdmin() {
-        if(esAdmin) {
-            esAdmin = false;
-            vistaActiva = 'confesiones';
-            alert("🔒 Sesión de administrador cerrada");
-            renderBotonesAdmin();
-            cargar();
-            return;
-        }
-        
-        const clave = prompt("Escribe la contraseña de administrador:");
-        if (clave === "tribu3312*") {
-            esAdmin = true;
-            alert("🔓 Modo Administrador Activado");
-            renderBotonesAdmin();
-            cargar();
-        } else {
-            alert("❌ Clave incorrecta");
-        }
-    }
-    
-    function renderBotonesAdmin() {
-        const adminBar = document.getElementById("adminBar");
-        if(esAdmin) {
-            const txtVista = vistaActiva === 'confesiones' ? '📁 Ver Bandeja PQR' : '👻 Ver Confesiones';
-            adminBar.innerHTML = `
-                <button class="admin-btn" style="background: var(--danger); color: white;" onclick="activarModoAdmin()">Cerrar Sesión</button>
-                <button class="admin-btn" style="background: var(--accent-blue); color: white;" onclick="alternarVista()">${txtVista}</button>
-            `;
-        } else {
-            adminBar.innerHTML = `<button class="admin-btn" onclick="activarModoAdmin()">⚙️ Acceso Administrador</button>`;
-        }
-    }
-    
-    function alternarVista() {
-        vistaActiva = vistaActiva === 'confesiones' ? 'pqrs' : 'confesiones';
-        renderBotonesAdmin();
-        cargar();
-    }
+/* publicar */
+async function publicar(){
+  const texto=$('texto').value.trim();let autor=$('autor').value.trim()||"Anónimo";
+  if(!texto)return toast("Escribe tu confesión primero");
+  const b=$('btnPublicar');b.disabled=true;
+  const ip=await obtenerIP();
+  const{error}=await db.from("confesiones").insert([{texto,autor,ip,estado:'pendiente'}]);
+  b.disabled=false;
+  if(error)return toast("Error: "+error.message);
+  toast("🔥 Enviada. Pasará por revisión antes de salir al muro.");
+  $('texto').value="";$('autor').value="";$('cnt').textContent=0;cargar()}
 
-    // Alternar comentarios ON/OFF (Solo Admin)
-    async function toggleComentarios() {
-        comentariosPermitidos = !comentariosPermitidos;
-        
-        await supabaseClient
-            .from("configuracion")
-            .update({ valor: comentariosPermitidos })
-            .eq("clave", "comentarios_activos");
+/* PQR */
+const abrirPQR=()=>$('pqrModal').classList.add('open');
+const cerrarPQR=()=>$('pqrModal').classList.remove('open');
+async function enviarPQR(){
+  const tipo=$('pqrTipo').value,nombre=$('pqrNombre').value.trim()||"Anónimo",contacto=$('pqrContacto').value.trim(),mensaje=$('pqrMensaje').value.trim();
+  if(!mensaje)return toast("Describe tu situación en el mensaje");
+  const ip=await obtenerIP();
+  const{error}=await db.from("pqrs").insert([{tipo,nombre,contacto,mensaje,ip,estado:'pendiente'}]);
+  if(error)return toast("Error: "+error.message);
+  toast("✅ "+tipo+" enviada. El equipo la revisará pronto.");
+  ['pqrNombre','pqrContacto','pqrMensaje'].forEach(i=>$(i).value="");cerrarPQR()}
 
-        alert(comentariosPermitidos ? "💬 Comentarios ACTIVADOS" : "🔒 Comentarios DESACTIVADOS");
-        cargar();
-    }
+/* muro */
+async function cargar(){
+  await verificarComentarios();
+  const muro=$('muro');muro.innerHTML="";
+  $('secTitulo').textContent=esAdmin&&vista==='pqrs'?'Bandeja de PQR':'El muro';
+  if(esAdmin&&vista==='pqrs')return cargarPQRs(muro);
+  let q=db.from("confesiones").select("*").order("fecha",{ascending:false});
+  if(!esAdmin)q=q.eq("estado","aprobado");
+  const{data,error}=await q;if(error)return;
+  let html="";
+  if(esAdmin)html+=`<div class="banner">👑 Admin · ${comentariosOn?'🟢 Comentarios activos':'🔴 Comentarios bloqueados'}<button class="tiny ${comentariosOn?'red':''}" onclick="toggleComentarios()">${comentariosOn?'Apagar':'Encender'}</button></div>`;
+  if(!data||!data.length){muro.innerHTML=html+`<p class="empty">Aún no hay confesiones. Sé la primera persona en soltar una.</p>`;return}
+  const L=liked();
+  data.forEach((c,i)=>{
+    const pend=c.estado==='pendiente';
+    let ctrl="";
+    if(esAdmin)ctrl=pend?`<div style="display:flex;gap:8px;margin-top:12px"><button class="tiny" onclick="cambiarEstado(${c.id},'aprobado')">✅ Aprobar</button><button class="tiny red" onclick="cambiarEstado(${c.id},'rechazado')">❌ Rechazar</button></div>`:`<div style="margin-top:10px"><button class="tiny red" onclick="borrarConfesion(${c.id})">🗑️ Eliminar</button></div>`;
+    let com="";
+    if(!pend)com=`<div class="coms" id="coms-${c.id}"></div>`+(comentariosOn
+      ?`<div class="cbox"><input id="c-${c.id}" maxlength="200" placeholder="Comenta con respeto…"><button onclick="comentar(${c.id})">Enviar</button></div>`
+      :`<div class="off">🔒 Comentarios desactivados</div>`);
+    html+=`<article class="post ${pend?'pend':''}" style="animation-delay:${Math.min(i,8)*60}ms">
+      <p>${esc(c.texto)}</p>
+      <div class="meta"><span class="who">— ${esc(c.autor)} ${pend?'· <em>pendiente</em>':''}</span>
+      ${pend?'':`<button class="like ${L.includes(c.id)?'on':''}" onclick="like(${c.id},${c.likes||0})">❤️ ${c.likes||0}</button>`}</div>
+      ${ctrl}${com}</article>`});
+  muro.innerHTML=html;
+  data.forEach(c=>{if(c.estado!=='pendiente')cargarComentarios(c.id)})}
 
-    // PUBLICAR CONFESIÓN
-    async function publicar() {
-        let texto = document.getElementById("texto").value.trim();
-        let autor = document.getElementById("autor").value.trim();
+async function cargarPQRs(muro){
+  const{data,error}=await db.from("pqrs").select("*").order("fecha",{ascending:false});
+  if(error)return;
+  if(!data||!data.length){muro.innerHTML=`<p class="empty">No hay PQR por ahora.</p>`;return}
+  muro.innerHTML=data.map(p=>{const ok=p.estado==='resuelto';
+    return `<article class="post" style="${ok?'opacity:.6':''}"><p style="padding-top:10px;font-family:var(--sans);font-size:16px">${esc(p.mensaje)}</p>
+    <div class="meta"><span class="who">${esc(p.tipo)} · ${esc(p.nombre)}${p.contacto?' · '+esc(p.contacto):''}</span>
+    <span style="display:flex;gap:6px">${ok?'':`<button class="tiny" onclick="resolverPQR(${p.id})">✅ Resuelto</button>`}<button class="tiny red" onclick="borrarPQR(${p.id})">🗑️</button></span></div></article>`}).join("")}
 
-        if (!texto) {
-            alert("Por favor escribe una confesión.");
-            return;
-        }
+async function cambiarEstado(id,e){
+  if(e==='rechazado'){if(!confirm("¿Rechazar esta confesión?"))return;await db.from("confesiones").delete().eq("id",id)}
+  else await db.from("confesiones").update({estado:'aprobado'}).eq("id",id);
+  cargar()}
+async function borrarConfesion(id){if(!confirm("¿Borrar esta confesión?"))return;await db.from("confesiones").delete().eq("id",id);cargar()}
+async function resolverPQR(id){await db.from("pqrs").update({estado:'resuelto'}).eq("id",id);cargar()}
+async function borrarPQR(id){if(!confirm("¿Eliminar este PQR?"))return;await db.from("pqrs").delete().eq("id",id);cargar()}
+async function borrarComentario(cid,id){if(!confirm("¿Borrar comentario?"))return;await db.from("comentarios").delete().eq("id",cid);cargarComentarios(id)}
+async function like(id,n){
+  const L=liked();if(L.includes(id))return toast("Ya le diste ❤️ a esta");
+  saveLiked([...L,id]);await db.from("confesiones").update({likes:n+1}).eq("id",id);cargar()}
+async function comentar(id){
+  if(!comentariosOn)return toast("🔒 Comentarios desactivados");
+  const el=$('c-'+id),texto=el.value.trim();if(!texto)return;
+  const ip=await obtenerIP();
+  await db.from("comentarios").insert([{confesion_id:id,texto,autor:"Anónimo",ip}]);
+  el.value="";cargarComentarios(id)}
+async function cargarComentarios(id){
+  const{data}=await db.from("comentarios").select("*").eq("confesion_id",id).order("fecha",{ascending:true});
+  const d=$('coms-'+id);if(!d)return;
+  d.innerHTML=(data||[]).map(c=>`<div class="com"><span>💬 ${esc(c.texto)}</span>${esAdmin?`<button class="tiny red" onclick="borrarComentario(${c.id},${id})">x</button>`:''}</div>`).join("")}
 
-        if (!autor) autor = "Anónimo";
-        let ip = await obtenerIP();
+$('btnPublicar').addEventListener('click',publicar);
+renderAdmin();cargar();
 
-        const { error } = await supabaseClient
-            .from("confesiones")
-            .insert([{ texto, autor, ip, estado: 'pendiente' }]);
-
-        if (error) {
-            alert("Error al publicar: " + error.message);
-            return;
-        }
-
-        alert("🔥 ¡Confesión enviada! Pasará por revisión antes de aparecer en el muro.");
-        document.getElementById("texto").value = "";
-        document.getElementById("autor").value = "";
-        cargar();
-    }
-    
-    // --- LÓGICA PQR ---
-    function abrirModalPQR() {
-        document.getElementById("pqrModal").style.display = "flex";
-    }
-    
-    function cerrarModalPQR() {
-        document.getElementById("pqrModal").style.display = "none";
-    }
-    
-    async function enviarPQR() {
-        const tipo = document.getElementById("pqrTipo").value;
-        const nombre = document.getElementById("pqrNombre").value.trim() || "Anónimo";
-        const contacto = document.getElementById("pqrContacto").value.trim();
-        const mensaje = document.getElementById("pqrMensaje").value.trim();
-        
-        if (!mensaje) {
-            alert("Por favor, describe tu situación en el mensaje.");
-            return;
-        }
-        
-        let ip = await obtenerIP();
-        
-        const { error } = await supabaseClient
-            .from("pqrs")
-            .insert([{ tipo, nombre, contacto, mensaje, ip, estado: 'pendiente' }]);
-            
-        if (error) {
-            alert("Error al enviar PQR: " + error.message);
-            return;
-        }
-        
-        alert("✅ Tu " + tipo + " ha sido enviada exitosamente. El equipo la revisará pronto.");
-        
-        document.getElementById("pqrNombre").value = "";
-        document.getElementById("pqrContacto").value = "";
-        document.getElementById("pqrMensaje").value = "";
-        cerrarModalPQR();
-    }
-
-    // CARGAR MURO O PQRS
-    async function cargar() {
-        await verificarEstadoComentarios();
-        let muro = document.getElementById("muro");
-        muro.innerHTML = "";
-        
-        if (esAdmin && vistaActiva === 'pqrs') {
-            await cargarVistaPQRs(muro);
-            return;
-        }
-
-        // Carga de Confesiones
-        let query = supabaseClient.from("confesiones").select("*").order("fecha", { ascending: false });
-
-        if (!esAdmin) {
-            query = query.eq("estado", "aprobado");
-        }
-
-        const { data, error } = await query;
-        if (error) return;
-
-        // Panel Admin Banner
-        if (esAdmin) {
-            const estadoTexto = comentariosPermitidos ? "🟢 Comentarios ACTIVOS" : "🔴 Comentarios BLOQUEADOS";
-            const btnColor = comentariosPermitidos ? "#da3633" : "#2ea44f";
-
-            muro.innerHTML += `
-                <div style="background: rgba(255, 170, 0, 0.15); border: 1px solid #ffaa00; padding: 12px; border-radius: 10px; text-align: center; color: #ffaa00; margin-bottom: 15px;">
-                    <div style="font-weight: bold; margin-bottom: 8px;">👑 MODO ADMIN | ${estadoTexto}</div>
-                    <button style="background: ${btnColor}; color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px;" onclick="toggleComentarios()">
-                        ${comentariosPermitidos ? '🔒 Apagar Comentarios' : '💬 Encender Comentarios'}
-                    </button>
-                </div>
-            `;
-        }
-
-        if (!data || data.length === 0) {
-            muro.innerHTML += `<p style="color: #888; text-align: center;">No hay confesiones visibles en este momento.</p>`;
-            return;
-        }
-
-        data.forEach(c => {
-            const esPendiente = c.estado === 'pendiente';
-            
-            let adminControles = '';
-            if (esAdmin) {
-                if (esPendiente) {
-                    adminControles = `
-                        <div style="margin-top: 10px; display: flex; gap: 8px;">
-                            <button class="btn-action" onclick="cambiarEstado(${c.id}, 'aprobado')">✅ Aprobar</button>
-                            <button class="btn-delete" style="padding:6px 12px;" onclick="cambiarEstado(${c.id}, 'rechazado')">❌ Rechazar</button>
-                        </div>
-                    `;
-                } else {
-                    adminControles = `<button class="btn-delete" onclick="borrarConfesion(${c.id})">🗑️ Eliminar</button>`;
-                }
-            }
-
-           const ipTag = esAdmin ? `<span class="ip-tag">Estado: <strong>${c.estado}</strong></span>` : '';
-            const badgePendiente = esPendiente ? `<span style="background: #ffaa00; color: #000; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold;">PENDIENTE</span>` : '';
-
-            // Renderizado de sección de comentarios (según switch)
-            let renderComentarios = '';
-            if (!esPendiente) {
-                if (comentariosPermitidos) {
-                    renderComentarios = `
-                        <div class="comment-section" id="comentarios-${c.id}"></div>
-                        <div class="comment-box">
-                            <input id="c-${c.id}" placeholder="Escribe un comentario...">
-                            <button onclick="comentar(${c.id})">Enviar</button>
-                        </div>
-                    `;
-                } else {
-                    renderComentarios = `
-                        <div class="comment-section" id="comentarios-${c.id}"></div>
-                        <div style="margin-top: 10px; font-size: 11px; color: #777; font-style: italic; text-align: center; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 6px;">
-                            🔒 Comentarios desactivados
-                        </div>
-                    `;
-                }
-            }
-
-            muro.innerHTML += `
-                <div class="post" style="${esPendiente ? 'border: 1px dashed #ffaa00; background: rgba(255, 170, 0, 0.05);' : ''}">
-                    <div class="post-header">
-                        <span class="autor">👤 ${c.autor} ${badgePendiente}</span>
-                        <div>${ipTag}</div>
-                    </div>
-                    <p>"${c.texto}"</p>
-                    
-                    ${adminControles}
-
-                    ${!esPendiente ? `
-                        <div class="post-footer">
-                            <div class="like" onclick="like(${c.id}, ${c.likes || 0})">
-                                ❤️ ${c.likes || 0}
-                            </div>
-                        </div>
-                        ${renderComentarios}
-                    ` : ''}
-                </div>
-            `;
-
-            if (!esPendiente) {
-                cargarComentarios(c.id);
-            }
-        });
-    }
-    
-    async function cargarVistaPQRs(muro) {
-        muro.innerHTML = `
-            <div style="background: rgba(0, 136, 255, 0.15); border: 1px solid #0088ff; padding: 12px; border-radius: 10px; text-align: center; color: #0088ff; margin-bottom: 15px;">
-                <div style="font-weight: bold;">📩 BANDEJA DE PQRs (SOLO ADMIN)</div>
-            </div>
-        `;
-        
-        const { data, error } = await supabaseClient.from("pqrs").select("*").order("fecha", { ascending: false });
-        if (error) return;
-        
-        if (!data || data.length === 0) {
-            muro.innerHTML += `<p style="color: #888; text-align: center;">No hay PQRs en este momento.</p>`;
-            return;
-        }
-        
-        data.forEach(p => {
-            const badgeColor = p.tipo === 'Reclamo' ? '#ff4d4d' : (p.tipo === 'Queja' ? '#ffaa00' : '#0088ff');
-            const estadoResuelto = p.estado === 'resuelto';
-            
-            muro.innerHTML += `
-                <div class="post" style="border-left: 4px solid ${badgeColor}; ${estadoResuelto ? 'opacity: 0.7;' : ''}">
-                    <div class="post-header">
-                        <span class="autor">👤 ${p.nombre}</span>
-                        <span style="background:${badgeColor}; color:white; font-size:10px; padding:3px 8px; border-radius:12px;">${p.tipo}</span>
-                    </div>
-                    ${p.contacto ? `<div style="font-size:12px; color:#888; margin-bottom:8px;">📧 Contacto: ${p.contacto}</div>` : ''}
-                    
-                    <p style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px;">
-                        ${p.mensaje}
-                    </p>
-                    
-                    <div style="display:flex; justify-content:space-between; align-items:center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px;">
-                        <span class="ip-tag">Estado: <strong>${p.estado.toUpperCase()}</strong></span>
-                        <div style="display:flex; gap:8px;">
-                            ${!estadoResuelto ? `<button class="btn-action" onclick="resolverPQR(${p.id})">✅ Marcar Resuelto</button>` : ''}
-                            <button class="btn-delete" onclick="borrarPQR(${p.id})">🗑️ Eliminar</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-    }
-
-    async function cambiarEstado(id, nuevoEstado) {
-        if (nuevoEstado === 'rechazado') {
-            if (!confirm("¿Deseas rechazar esta confesión?")) return;
-            await supabaseClient.from("confesiones").delete().eq("id", id);
-        } else {
-            await supabaseClient.from("confesiones").update({ estado: 'aprobado' }).eq("id", id);
-        }
-        cargar();
-    }
-
-    async function borrarConfesion(id) {
-        if (!confirm("¿Seguro que quieres borrar esta confesión?")) return;
-        await supabaseClient.from("confesiones").delete().eq("id", id);
-        cargar();
-    }
-    
-    async function resolverPQR(id) {
-        await supabaseClient.from("pqrs").update({ estado: 'resuelto' }).eq("id", id);
-        cargar();
-    }
-    
-    async function borrarPQR(id) {
-        if (!confirm("¿Seguro que quieres eliminar este PQR definitivamente?")) return;
-        await supabaseClient.from("pqrs").delete().eq("id", id);
-        cargar();
-    }
-
-    async function borrarComentario(comentarioId, confesionId) {
-        if (!confirm("¿Borrar este comentario?")) return;
-        await supabaseClient.from("comentarios").delete().eq("id", comentarioId);
-        cargarComentarios(confesionId);
-    }
-
-    async function like(id, likes) {
-        await supabaseClient.from("confesiones").update({ likes: likes + 1 }).eq("id", id);
-        cargar();
-    }
-
-    async function comentar(id) {
-        if (!comentariosPermitidos) {
-            alert("🔒 Los comentarios están desactivados.");
-            return;
-        }
-
-        let texto = document.getElementById("c-" + id).value.trim();
-        if (!texto) return;
-
-        let ip = await obtenerIP();
-
-        await supabaseClient.from("comentarios").insert([{
-            confesion_id: id,
-            texto: texto,
-            autor: "Anónimo",
-            ip: ip
-        }]);
-
-        document.getElementById("c-" + id).value = "";
-        cargarComentarios(id);
-    }
-
-    async function cargarComentarios(id) {
-        const { data } = await supabaseClient
-            .from("comentarios")
-            .select("*")
-            .eq("confesion_id", id)
-            .order("fecha", { ascending: true });
-
-        let div = document.getElementById("comentarios-" + id);
-        if (!div) return;
-        div.innerHTML = "";
-
-        if (data) {
-            data.forEach(c => {
-                const deleteComBtn = esAdmin ? `<button class="btn-delete" style="padding:2px 6px;" onclick="borrarComentario(${c.id}, ${id})">x</button>` : '';
-                div.innerHTML += `
-                    <div class="comment">
-                        <span>💬 ${c.texto}</span>
-                        ${deleteComBtn}
-                    </div>
-                `;
-            });
-        }
-    }
-
-    document.getElementById("btnPublicar").addEventListener("click", publicar);
-    cargar();
+/* ===== FX: brasas + confeti + efectos ===== */
+const cv=$('fx'),cx=cv.getContext('2d');let W,H,P=[];
+function rs(){W=cv.width=innerWidth;H=cv.height=innerHeight}rs();addEventListener('resize',rs);
+const cols=['#a54d17','#d9783a','#f6ebd4','#1b4f4b'];
+function ember(){return{x:Math.random()*W,y:H+10,r:Math.random()*2.5+.8,vy:-(Math.random()*.7+.3),vx:(Math.random()-.5)*.4,a:Math.random()*.6+.3,t:'e',c:cols[Math.random()*2|0],ph:Math.random()*6}}
+for(let i=0;i<40;i++){const e=ember();e.y=Math.random()*H;P.push(e)}
+function burst(x,y,n=60){for(let i=0;i<n;i++){const a=Math.random()*6.28,v=Math.random()*9+3;P.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-4,r:Math.random()*6+3,a:1,t:'c',c:cols[Math.random()*4|0],rot:Math.random()*6,vr:(Math.random()-.5)*.4})}}
+(function loop(){cx.clearRect(0,0,W,H);
+  if(P.filter(p=>p.t==='e').length<40&&Math.random()<.15)P.push(ember());
+  P=P.filter(p=>{
+    if(p.t==='e'){p.ph+=.03;p.x+=p.vx+Math.sin(p.ph)*.4;p.y+=p.vy;cx.globalAlpha=p.a*(.6+.4*Math.sin(p.ph*3));cx.fillStyle=p.c;cx.shadowBlur=10;cx.shadowColor=p.c;cx.beginPath();cx.arc(p.x,p.y,p.r,0,6.28);cx.fill();cx.shadowBlur=0;return p.y>-10}
+    p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;p.a-=.012;cx.save();cx.globalAlpha=Math.max(p.a,0);cx.translate(p.x,p.y);cx.rotate(p.rot);cx.fillStyle=p.c;cx.fillRect(-p.r,-p.r/2,p.r*2,p.r);cx.restore();return p.a>0&&p.y<H+20});
+  requestAnimationFrame(loop)})();
+/* letras del título */
+(function(){let i=0;document.querySelectorAll('h1,h1 span').forEach(el=>{[...el.childNodes].forEach(n=>{if(n.nodeType===3){const f=document.createDocumentFragment();[...n.textContent].forEach(ch=>{const s=document.createElement('span');s.className='l';s.style.setProperty('--i',i++);s.innerHTML=ch===' '?'&nbsp;':ch;f.appendChild(s)});n.replaceWith(f)}})})})();
+/* linterna que sigue el cursor + inclinación del logo */
+addEventListener('pointermove',e=>{document.body.style.setProperty('--mx',e.clientX+'px');document.body.style.setProperty('--my',e.clientY+'px');
+  const b=$('badge').getBoundingClientRect(),dx=(e.clientX-b.left-b.width/2)/25,dy=(e.clientY-b.top-b.height/2)/25;$('badge').style.transform=`perspective(500px) rotateY(${dx}deg) rotateX(${-dy}deg)`});
+addEventListener('pointerdown',e=>{if(e.target.closest('a,button,input,textarea,select'))burst(e.clientX,e.clientY,14)});
+/* aparecer al hacer scroll */
+const io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}}),{threshold:.12});
+new MutationObserver(()=>document.querySelectorAll('.post:not(.in)').forEach(p=>io.observe(p))).observe($('muro'),{childList:true});
+/* confeti al publicar y corazones */
+const _pub=$('btnPublicar');_pub.addEventListener('click',()=>{const r=_pub.getBoundingClientRect();setTimeout(()=>{if($('texto').value==='')burst(r.left+r.width/2,r.top,110)},900)});
+document.addEventListener('click',e=>{const l=e.target.closest('.like');if(l){const r=l.getBoundingClientRect();burst(r.left+r.width/2,r.top,25)}});
 </script>
 </body>
 </html>
