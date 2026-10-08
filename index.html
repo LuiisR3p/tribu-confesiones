@@ -263,7 +263,7 @@ async function cargar(){
     if(esAdmin)ctrl=pend?`<div style="display:flex;gap:8px;margin-top:12px"><button class="tiny" onclick="cambiarEstado(${c.id},'aprobado')">✅ Aprobar</button><button class="tiny red" onclick="cambiarEstado(${c.id},'rechazado')">❌ Rechazar</button></div>`:`<div style="margin-top:10px"><button class="tiny red" onclick="borrarConfesion(${c.id})">🗑️ Eliminar</button></div>`;
     let com="";
     if(!pend)com=`<div class="coms" id="coms-${c.id}"></div>`+(comentariosOn
-      ?`<div class="cbox"><input id="c-${c.id}" maxlength="200" placeholder="Comenta con respeto…"><button onclick="comentar(${c.id})">Enviar</button></div>`
+      ?`<div class="cbox"><input id="c-${c.id}" placeholder="Comenta con respeto…"><button onclick="comentar(${c.id})">Enviar</button></div>`
       :`<div class="off">🔒 Comentarios desactivados</div>`);
     html+=`<article class="post ${pend?'pend':''}" style="animation-delay:${Math.min(i,8)*60}ms">
       <p>${esc(c.texto)}</p>
