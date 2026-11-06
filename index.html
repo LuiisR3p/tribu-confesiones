@@ -52,6 +52,7 @@ textarea:focus,input:focus,select:focus{border-color:var(--accent);box-shadow:0 
 .post p{font:500 17px/1.6 var(--serif);padding-top:16px;word-break:break-word;white-space:pre-wrap}
 .meta{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);gap:8px;flex-wrap:wrap}
 .who{font-weight:600;color:var(--accent)}
+.who .fecha{display:block;margin-top:3px;font-weight:500;color:var(--muted);font-size:12px}
 .like{cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--text);font:500 14px var(--sans);padding:6px 14px;border-radius:999px;transition:.2s}
 .like:hover,.like.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 18%,transparent)}
 .coms{margin-top:12px;display:flex;flex-direction:column;gap:6px}
@@ -245,6 +246,9 @@ async function enviarPQR(){
   ['pqrNombre','pqrContacto','pqrMensaje'].forEach(i=>$(i).value="");cerrarPQR()}
 
 /* muro */
+function fechaBonita(f){if(/^\d{4}-\d{2}-\d{2}$/.test(f))return new Date(f+"T12:00:00").toLocaleDateString("es-CO",{day:"numeric",month:"short",year:"numeric"});
+  const d=new Date(f);if(isNaN(d))return"";const o={timeZone:"America/Bogota"};
+  return d.toLocaleDateString("es-CO",{...o,day:"numeric",month:"short",year:"numeric"})+" · "+d.toLocaleTimeString("es-CO",{...o,hour:"numeric",minute:"2-digit"})}
 async function cargar(){
   await verificarComentarios();
   const muro=$('muro');muro.innerHTML="";
@@ -267,7 +271,7 @@ async function cargar(){
       :`<div class="off">🔒 Comentarios desactivados</div>`);
     html+=`<article class="post ${pend?'pend':''}" style="animation-delay:${Math.min(i,8)*60}ms">
       <p>${esc(c.texto)}</p>
-      <div class="meta"><span class="who">— ${esc(c.autor)} ${pend?'· <em>pendiente</em>':''}</span>
+      <div class="meta"><span class="who">— ${esc(c.autor)} ${pend?'· <em>pendiente</em>':''}${c.fecha?`<span class="fecha">🗓️ ${fechaBonita(c.fecha)}</span>`:''}</span>
       ${pend?'':`<button class="like ${L.includes(c.id)?'on':''}" onclick="like(${c.id},${c.likes||0})">❤️ ${c.likes||0}</button>`}</div>
       ${ctrl}${com}</article>`});
   muro.innerHTML=html;
