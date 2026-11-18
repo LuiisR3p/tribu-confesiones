@@ -199,7 +199,10 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),3200)}
 const liked=()=>{try{return JSON.parse(localStorage.getItem('tsg-likes')||'[]')}catch(e){return[]}};
 const saveLiked=a=>{try{localStorage.setItem('tsg-likes',JSON.stringify(a))}catch(e){}};
-async function obtenerIP(){try{return(await(await fetch("https://api.ipify.org?format=json")).json()).ip}catch{return"127.0.0.1"}}
+/* guarda sin IP (las confesiones son anónimas). Si la tabla aún exige la columna ip, reintenta con un valor genérico */
+async function insertar(tabla,fila){let r=await db.from(tabla).insert([fila]);
+  if(r.error&&r.error.code==='23502'&&/ip/.test(r.error.message))r=await db.from(tabla).insert([{...fila,ip:'anonimo'}]);
+  return r}
 $('texto').addEventListener('input',e=>$('cnt').textContent=e.target.value.length);
 
 async function verificarComentarios(){
@@ -226,8 +229,7 @@ async function publicar(){
   const texto=$('texto').value.trim();let autor=$('autor').value.trim()||"Anónimo";
   if(!texto)return toast("Escribe tu confesión primero");
   const b=$('btnPublicar');b.disabled=true;
-  const ip=await obtenerIP();
-  const{error}=await db.from("confesiones").insert([{texto,autor,ip,estado:'pendiente'}]);
+  const{error}=await insertar("confesiones",{texto,autor,estado:'pendiente'});
   b.disabled=false;
   if(error)return toast("Error: "+error.message);
   toast("🔥 Enviada. Pasará por revisión antes de salir al muro.");
@@ -239,8 +241,7 @@ const cerrarPQR=()=>$('pqrModal').classList.remove('open');
 async function enviarPQR(){
   const tipo=$('pqrTipo').value,nombre=$('pqrNombre').value.trim()||"Anónimo",contacto=$('pqrContacto').value.trim(),mensaje=$('pqrMensaje').value.trim();
   if(!mensaje)return toast("Describe tu situación en el mensaje");
-  const ip=await obtenerIP();
-  const{error}=await db.from("pqrs").insert([{tipo,nombre,contacto,mensaje,ip,estado:'pendiente'}]);
+  const{error}=await insertar("pqrs",{tipo,nombre,contacto,mensaje,estado:'pendiente'});
   if(error)return toast("Error: "+error.message);
   toast("✅ "+tipo+" enviada. El equipo la revisará pronto.");
   ['pqrNombre','pqrContacto','pqrMensaje'].forEach(i=>$(i).value="");cerrarPQR()}
@@ -275,7 +276,7 @@ async function cargar(){
       ${pend?'':`<button class="like ${L.includes(c.id)?'on':''}" onclick="like(${c.id},${c.likes||0})">❤️ ${c.likes||0}</button>`}</div>
       ${ctrl}${com}</article>`});
   muro.innerHTML=html;
-  data.forEach(c=>{if(c.estado!=='pendiente')cargarComentarios(c.id)})}
+  cargarTodosComentarios(data.filter(c=>c.estado!=='pendiente').map(c=>c.id))}
 
 async function cargarPQRs(muro){
   const{data,error}=await db.from("pqrs").select("*").order("fecha",{ascending:false});
@@ -300,13 +301,24 @@ async function like(id,n){
 async function comentar(id){
   if(!comentariosOn)return toast("🔒 Comentarios desactivados");
   const el=$('c-'+id),texto=el.value.trim();if(!texto)return;
-  const ip=await obtenerIP();
-  await db.from("comentarios").insert([{confesion_id:id,texto,autor:"Anónimo",ip}]);
+  await insertar("comentarios",{confesion_id:id,texto,autor:"Anónimo"});
   el.value="";cargarComentarios(id)}
+function pintarComentarios(id,lista){
+  const d=$('coms-'+id);if(!d)return;
+  d.innerHTML=(lista||[]).map(c=>`<div class="com"><span>💬 ${esc(c.texto)}</span>${esAdmin?`<button class="tiny red" onclick="borrarComentario(${c.id},${id})">x</button>`:''}</div>`).join("")}
 async function cargarComentarios(id){
   const{data}=await db.from("comentarios").select("*").eq("confesion_id",id).order("fecha",{ascending:true});
-  const d=$('coms-'+id);if(!d)return;
-  d.innerHTML=(data||[]).map(c=>`<div class="com"><span>💬 ${esc(c.texto)}</span>${esAdmin?`<button class="tiny red" onclick="borrarComentario(${c.id},${id})">x</button>`:''}</div>`).join("")}
+  pintarComentarios(id,data)}
+/* todos los comentarios del muro en una sola consulta (por páginas de 1000) en vez de una por confesión */
+async function cargarTodosComentarios(ids){
+  if(!ids.length)return;
+  let todos=[];
+  for(let desde=0;;desde+=1000){
+    const{data,error}=await db.from("comentarios").select("*").in("confesion_id",ids).order("fecha",{ascending:true}).order("id",{ascending:true}).range(desde,desde+999);
+    if(error){ids.forEach(cargarComentarios);return}
+    todos=todos.concat(data);if(data.length<1000)break}
+  const por={};todos.forEach(c=>(por[c.confesion_id]??=[]).push(c));
+  ids.forEach(id=>pintarComentarios(id,por[id]))}
 
 $('btnPublicar').addEventListener('click',publicar);
 renderAdmin();cargar();
