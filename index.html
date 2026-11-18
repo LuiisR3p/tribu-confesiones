@@ -199,10 +199,10 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),3200)}
 const liked=()=>{try{return JSON.parse(localStorage.getItem('tsg-likes')||'[]')}catch(e){return[]}};
 const saveLiked=a=>{try{localStorage.setItem('tsg-likes',JSON.stringify(a))}catch(e){}};
-/* IP: se pide una sola vez al abrir la página, en segundo plano y con límite de 2 s.
+/* IP: se pide una sola vez al abrir la página, en segundo plano y con límite de 15 s (mientras la persona escribe).
    Se guarda solo en Supabase (no se muestra en ningún lado). Al publicar se espera como máximo 1 s; si no llegó, se guarda "desconocida" */
 const conLimite=(p,ms,v)=>Promise.race([p,new Promise(r=>setTimeout(()=>r(v),ms))]);
-const ipPromesa=conLimite(fetch("https://api.ipify.org?format=json").then(r=>r.json()).then(j=>j.ip).catch(()=>null),2000,null);
+const ipPromesa=conLimite(fetch("https://api.ipify.org?format=json").then(r=>r.json()).then(j=>j.ip).catch(()=>null),15000,null);
 async function obtenerIP(){return (await conLimite(ipPromesa,1000,null))||"desconocida"}
 async function insertar(tabla,fila){return db.from(tabla).insert([{...fila,ip:await obtenerIP()}])}
 $('texto').addEventListener('input',e=>$('cnt').textContent=e.target.value.length);
