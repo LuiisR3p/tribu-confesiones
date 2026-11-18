@@ -257,7 +257,8 @@ async function enviarPQR(){
 
 /* muro */
 function fechaBonita(f){if(/^\d{4}-\d{2}-\d{2}$/.test(f))return new Date(f+"T12:00:00").toLocaleDateString("es-CO",{day:"numeric",month:"short",year:"numeric"});
-  const d=new Date(f);if(isNaN(d))return"";const o={timeZone:"America/Bogota"};
+  /* Supabase guarda la hora en UTC sin zona ("2026-11-18T04:12:42"); se marca como UTC para pasarla a hora de Colombia */
+  const iso=String(f).replace(" ","T").replace(/([+-]\d\d)$/,"$1:00"),d=new Date(/(Z|[+-]\d\d:?\d\d)$/.test(iso)?iso:iso+"Z");if(isNaN(d))return"";const o={timeZone:"America/Bogota"};
   return d.toLocaleDateString("es-CO",{...o,day:"numeric",month:"short",year:"numeric"})+" · "+d.toLocaleTimeString("es-CO",{...o,hour:"numeric",minute:"2-digit"})}
 async function cargar(){
   await verificarComentarios();
