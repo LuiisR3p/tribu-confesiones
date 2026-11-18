@@ -130,7 +130,7 @@ footer a{animation:none!important}
 <canvas id="fx"></canvas>
 <div class="wrap">
   <div class="top">
-    <a class="pill" href="https://halloween-tribu-2026.vercel.app/">🎃 Fiesta Halloween 2026</a>
+    <a class="pill" href="https://tribu-sin-guia.vercel.app/">🏠 Ir a la página principal</a>
     <button class="pill" id="themeBtn" aria-label="Cambiar tema">☀️ Claro</button>
   </div>
 
@@ -199,10 +199,12 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),3200)}
 const liked=()=>{try{return JSON.parse(localStorage.getItem('tsg-likes')||'[]')}catch(e){return[]}};
 const saveLiked=a=>{try{localStorage.setItem('tsg-likes',JSON.stringify(a))}catch(e){}};
-/* guarda sin IP (las confesiones son anónimas). Si la tabla aún exige la columna ip, reintenta con un valor genérico */
-async function insertar(tabla,fila){let r=await db.from(tabla).insert([fila]);
-  if(r.error&&r.error.code==='23502'&&/ip/.test(r.error.message))r=await db.from(tabla).insert([{...fila,ip:'anonimo'}]);
-  return r}
+/* IP: se pide una sola vez al abrir la página, en segundo plano y con límite de 2 s.
+   Se guarda solo en Supabase (no se muestra en ningún lado). Al publicar se espera como máximo 1 s; si no llegó, se guarda "desconocida" */
+const conLimite=(p,ms,v)=>Promise.race([p,new Promise(r=>setTimeout(()=>r(v),ms))]);
+const ipPromesa=conLimite(fetch("https://api.ipify.org?format=json").then(r=>r.json()).then(j=>j.ip).catch(()=>null),2000,null);
+async function obtenerIP(){return (await conLimite(ipPromesa,1000,null))||"desconocida"}
+async function insertar(tabla,fila){return db.from(tabla).insert([{...fila,ip:await obtenerIP()}])}
 $('texto').addEventListener('input',e=>$('cnt').textContent=e.target.value.length);
 
 async function verificarComentarios(){
@@ -212,8 +214,15 @@ async function verificarComentarios(){
 /* admin */
 function activarAdmin(){
   if(esAdmin){esAdmin=false;vista='confesiones';toast("🔒 Sesión cerrada");renderAdmin();cargar();return}
-  const k=prompt("Contraseña de administrador:");
-  if(k==="tribu3312*"){esAdmin=true;toast("🔓 Modo administrador");renderAdmin();cargar()}else if(k!==null)toast("❌ Clave incorrecta")}
+  const k=prompt("Contraseña de administrador:");if(k===null)return;
+  claveValida(k).then(ok=>{if(ok){esAdmin=true;toast("🔓 Modo administrador");renderAdmin();cargar()}else toast("❌ Clave incorrecta")})}
+/* la clave no está en el código: solo su huella (PBKDF2-SHA256). Para cambiarla hay que generar una huella nueva */
+const ADMIN_SAL="87041a2aab233d6b9c95561aa8672510",ADMIN_HUELLA="34efe87b3d3caa3b2f659284c234c07805af720e80c953f8bc570cff7dc1bb15",ADMIN_ITER=300000;
+async function claveValida(k){try{
+  const hex=s=>new Uint8Array(s.match(/../g).map(b=>parseInt(b,16)));
+  const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(k),"PBKDF2",false,["deriveBits"]);
+  const bits=await crypto.subtle.deriveBits({name:"PBKDF2",salt:hex(ADMIN_SAL),iterations:ADMIN_ITER,hash:"SHA-256"},base,256);
+  return [...new Uint8Array(bits)].map(b=>b.toString(16).padStart(2,"0")).join("")===ADMIN_HUELLA}catch(e){return false}}
 function renderAdmin(){
   $('adminBar').innerHTML=esAdmin
    ?`<button class="pill" onclick="activarAdmin()">Cerrar sesión</button><button class="pill" onclick="alternarVista()">${vista==='confesiones'?'📁 Bandeja PQR':'👻 Confesiones'}</button>`
